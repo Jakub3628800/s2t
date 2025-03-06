@@ -25,7 +25,7 @@ repos:
       files: ^desktopstt/
       args: [
         "--fix",
-        "--per-file-ignores=desktopstt/popup_recorder.py:E402,F821 desktopstt/truly_silent.py:E402 desktopstt/ui/app_window.py:E402 desktopstt/ui/recording_window.py:E402 desktopstt/audio/recorder.py:E722",
+        "--per-file-ignores=desktopstt/popup_recorder.py:E402,F821 desktopstt/truly_silent.py:E402 desktopstt/audio/recorder.py:E722",
       ]
 
 -   repo: https://github.com/pre-commit/mirrors-mypy

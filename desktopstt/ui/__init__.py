@@ -1,8 +1,6 @@
 """
-User interface components for DesktopSTT.
+UI components for DesktopSTT.
 """
 
-from desktopstt.ui.app_window import AppWindow
-from desktopstt.ui.recording_window import RecordingWindow
-
-__all__ = ['AppWindow', 'RecordingWindow']
+# The UI module is kept for potential future UI components
+# Currently, the popup_recorder.py module has its own UI implementation
