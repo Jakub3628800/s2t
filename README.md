@@ -67,6 +67,20 @@ make run-silent
 
 The repository includes two convenience scripts that can be installed to your PATH:
 
+#### Option 1: Using the installation script
+
+```bash
+# Run the installation script
+./install_scripts.sh
+```
+
+This script will:
+1. Copy the scripts to your ~/bin directory
+2. Make them executable
+3. Add ~/bin to your PATH if it's not already there
+
+#### Option 2: Manual installation
+
 ```bash
 # Copy the scripts to your bin directory
 cp desktopstt-popup-silent.sh ~/bin/desktopstt-popup-silent
