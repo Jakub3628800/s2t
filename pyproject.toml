@@ -13,16 +13,12 @@ dependencies = [
     "pyyaml>=6.0",
     "requests>=2.28.0",
     "numpy>=1.26.0",
-    "pytest"
 ]
 license = {text = "MIT"}
 
 [project.scripts]
-desktopstt = "desktopstt.main:main"
-desktopstt-cli = "desktopstt.cli:main"
-desktopstt-simple = "desktopstt.simple_cli:main"
-desktopstt-silent = "desktopstt.truly_silent:main"
 desktopstt-popup = "desktopstt.popup_recorder:main"
+desktopstt-silent = "desktopstt.truly_silent:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]

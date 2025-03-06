@@ -6,94 +6,20 @@
 
 A desktop application for Linux that records speech and converts it to text using various speech recognition backends.
 
-## CursorRules
+## Features
 
-This project follows [CursorRules](https://github.com/cursor-rules/cursor-rules) for development. CursorRules is a set of guidelines and best practices for developing applications with Cursor, an AI-powered code editor.
-
-Key principles we follow:
-- Use modern Python packaging with `pyproject.toml` and `uv` for dependency management
-- Maintain clean, well-documented code with type hints
-- Follow a modular architecture for extensibility
-- Prioritize user experience and accessibility
-
-## Project Specification
-
-### Overview
-DesktopSTT is a lightweight desktop application that allows users to record audio from their microphone and convert it to text in real-time or from saved recordings. The application is designed to work on Linux systems, with specific optimizations for Wayland/Sway environments.
-
-### Features
-- **Audio Recording**: Capture audio from the system's microphone
-- **Speech-to-Text Conversion**: Convert recorded audio to text
-- **Multiple Backend Support**:
-  - Initial implementation with OpenAI's Whisper API
-  - Extensible architecture to support additional STT backends in the future
-- **User Interface**:
-  - Simple, intuitive GUI for recording and displaying transcribed text
-  - System tray integration for quick access
-  - Keyboard shortcuts for hands-free operation
-  - Popup recording window for visual feedback
-  - Voice activity detection for automatic recording stop
+- **Popup Recorder**: A graphical popup window for recording with visual feedback
+  - Voice activity detection (VAD) for automatic recording stop
   - Audio level visualization
-- **Output Options**:
-  - Copy text to clipboard
-  - Save transcriptions to file
-  - Export in various formats (TXT, JSON, etc.)
-- **Command-Line Interface**:
-  - Record and transcribe from the terminal
-  - Output to stdout for piping to other commands
-  - Optional minimal UI during recording
-  - Simple CLI version for Wayland/Sway compatibility
-  - Silent mode for clean output in scripts
+  - Customizable silence detection settings
+  - Silent mode for clean output
 
-### Technical Architecture
-- **Frontend**: Python-based GUI using GTK for Linux compatibility
-- **Audio Handling**: Use PulseAudio/PipeWire for audio capture
-- **Backend Interface**: Modular design to support multiple STT services
-  - Whisper API integration (initial implementation)
-  - Placeholder for future backends (local Whisper, Mozilla DeepSpeech, etc.)
-- **Configuration**: User-configurable settings stored in config files
-
-### Dependencies
-- Python 3.12+
-- GTK 4 for GUI
-- PulseAudio/PipeWire for audio capture
-- OpenAI API key (for Whisper API backend)
-- NumPy for audio processing and voice activity detection
-- Various Python packages (see requirements.txt)
-
-### Limitations
-- Initially designed for Linux only, with focus on Wayland/Sway environments
-- Internet connection required for cloud-based backends (like Whisper API)
-- Audio quality dependent on microphone and system audio settings
+- **Headless Mode**: A terminal-based version without any GUI
+  - Perfect for scripts and automation
+  - Minimal dependencies
+  - Clean output for piping to other commands
 
 ## Installation
-
-### Using uv (Recommended)
-
-[uv](https://github.com/astral-sh/uv) is a fast Python package installer and resolver that we use for this project.
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/desktopstt.git
-cd desktopstt
-
-# Create a virtual environment with uv
-uv venv
-
-# Activate the virtual environment
-source .venv/bin/activate  # On Linux/macOS
-# or
-# .venv\Scripts\activate  # On Windows
-
-# Install dependencies with uv
-uv sync
-
-# If you need to add a new dependency
-# Edit pyproject.toml to add the dependency, then run:
-uv sync
-```
-
-### Using pip (Alternative)
 
 ```bash
 # Clone the repository
@@ -101,32 +27,93 @@ git clone https://github.com/yourusername/desktopstt.git
 cd desktopstt
 
 # Create a virtual environment
-python -m venv venv
-source venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 
-# Install dependencies
+# Install the package
 pip install -e .
 ```
 
-### Using Makefile
+## Usage
+
+### Popup Recorder
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/desktopstt.git
-cd desktopstt
+# Basic usage with voice activity detection
+desktopstt-popup
 
-# Create a virtual environment and install
-make install-venv
-source .venv/bin/activate
+# Silent mode with 3 seconds silence duration
+desktopstt-popup --silent --silence-duration 3.0
 
-# Or install directly
-make install
+# Start recording immediately without waiting for speech
+desktopstt-popup --no-vad
+
+# Using make
+make run-popup
+make run-popup-silent
 ```
 
-### Package Management
+### Headless Mode
 
-This project uses `pyproject.toml` for dependency management, not `requirements.txt`. The `requirements.txt` file is provided only for compatibility with older tools.
+```bash
+# Basic usage
+desktopstt-silent
 
-When adding new dependencies:
-1. Add them to the `dependencies` list in `pyproject.toml`
-2. Run `
+# Using make
+make run-silent
+```
+
+### Convenience Scripts
+
+The repository includes two convenience scripts that can be installed to your PATH:
+
+```bash
+# Copy the scripts to your bin directory
+cp desktopstt-popup-silent.sh ~/bin/desktopstt-popup-silent
+cp desktopstt-silent.sh ~/bin/desktopstt-silent
+chmod +x ~/bin/desktopstt-popup-silent ~/bin/desktopstt-silent
+
+# Add ~/bin to your PATH if not already there
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc  # or ~/.zshrc
+source ~/.bashrc  # or ~/.zshrc
+```
+
+These scripts will:
+1. Run the appropriate command
+2. Suppress warnings and error messages
+3. Pipe the output to `wtype` to automatically type the transcribed text at your cursor position
+
+## API Key Setup
+
+To use the Whisper API backend, you need to set your OpenAI API key:
+
+### Option 1: Edit the config file
+```bash
+# Create the default config if it doesn't exist
+python -m desktopstt.config
+
+# Edit the config file
+nano ~/.config/desktopstt/config.yaml
+```
+
+In the config file, set your API key:
+```yaml
+backends:
+  whisper_api:
+    api_key: 'your-api-key-here'
+```
+
+### Option 2: Set environment variable
+```bash
+export OPENAI_API_KEY='your-api-key-here'
+```
+
+### Option 3: Create a .env file
+Create a file named `.env` in the project root:
+```
+OPENAI_API_KEY=your-api-key-here
+```
+
+## License
+
+[MIT License](LICENSE)
