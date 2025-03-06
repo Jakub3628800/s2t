@@ -1,0 +1,32 @@
+[project]
+name = "desktopstt"
+version = "0.1.0"
+description = "Desktop application for speech-to-text conversion on Linux"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "openai>=1.0.0",
+    "pygobject>=3.42.0",
+    "pycairo>=1.20.0",
+    "pydub>=0.25.1",
+    "pyaudio>=0.2.13",
+    "pyyaml>=6.0",
+    "requests>=2.28.0",
+    "numpy>=1.26.0",
+    "pytest"
+]
+license = {text = "MIT"}
+
+[project.scripts]
+desktopstt = "desktopstt.main:main"
+desktopstt-cli = "desktopstt.cli:main"
+desktopstt-simple = "desktopstt.simple_cli:main"
+desktopstt-silent = "desktopstt.truly_silent:main"
+desktopstt-popup = "desktopstt.popup_recorder:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["desktopstt"]

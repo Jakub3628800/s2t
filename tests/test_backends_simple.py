@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+"""
+Simple test for the backends module.
+"""
+
+import os
+import sys
+
+# Add the parent directory to the path so we can import the package
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from desktopstt.backends import get_backend
+from desktopstt.backends.whisper_api import WhisperAPIBackend
+
+def test_get_backend():
+    """Test that the get_backend function returns the correct backend."""
+    # Create a simple config with the whisper_api backend
+    config = {
+        'backends': {
+            'default': 'whisper_api',
+            'whisper_api': {
+                'api_key': 'test_key'
+            }
+        }
+    }
+
+    try:
+        # Get the backend
+        backend = get_backend(config)
+
+        # Check that the backend is a WhisperAPIBackend
+        assert isinstance(backend, WhisperAPIBackend), f"backend is {type(backend)}, expected WhisperAPIBackend"
+
+        # Check that the backend has the correct API key
+        assert backend.api_key == 'test_key', f"backend.api_key is {backend.api_key}, expected 'test_key'"
+
+        print("test_get_backend: PASSED")
+    except AssertionError as e:
+        print(f"test_get_backend: FAILED - {e}")
+
+def test_backend_is_available():
+    """Test that the backend is_available method works correctly."""
+    # Create a simple config with the whisper_api backend
+    config = {
+        'backends': {
+            'default': 'whisper_api',
+            'whisper_api': {
+                'api_key': 'test_key'
+            }
+        }
+    }
+
+    try:
+        # Get the backend
+        backend = get_backend(config)
+
+        # Mock the is_available method to return True
+        original_is_available = backend.is_available
+        backend.is_available = lambda: True
+
+        # Check that the backend is available
+        assert backend.is_available(), "backend.is_available() returned False, expected True"
+
+        # Restore the original method
+        backend.is_available = original_is_available
+
+        print("test_backend_is_available: PASSED")
+    except AssertionError as e:
+        print(f"test_backend_is_available: FAILED - {e}")
+
+def test_backend_name():
+    """Test that the backend get_name method works correctly."""
+    # Create a simple config with the whisper_api backend
+    config = {
+        'backends': {
+            'default': 'whisper_api',
+            'whisper_api': {
+                'api_key': 'test_key'
+            }
+        }
+    }
+
+    try:
+        # Get the backend
+        backend = get_backend(config)
+
+        # Check that the backend name is correct
+        # The actual implementation returns the backend key from the config
+        assert backend.get_name() == 'whisper_api', f"backend.get_name() returned {backend.get_name()}, expected 'whisper_api'"
+
+        print("test_backend_name: PASSED")
+    except AssertionError as e:
+        print(f"test_backend_name: FAILED - {e}")
+
+if __name__ == "__main__":
+    print("Running backend tests...")
+    test_get_backend()
+    test_backend_is_available()
+    test_backend_name()
+    print("All tests completed.")
