@@ -19,6 +19,15 @@ A desktop application for Linux that records speech and converts it to text usin
   - Minimal dependencies
   - Clean output for piping to other commands
 
+## Documentation
+
+Comprehensive documentation is available in the [docs](docs/) directory:
+
+- [Quick Start Guide](docs/quick_start.md): Get up and running quickly
+- [User Guide](docs/user_guide.md): Detailed instructions for using DesktopSTT
+- [API Reference](docs/api_reference.md): Detailed information about the public API
+- [Developer Guide](docs/developer_guide.md): Information for developers who want to contribute
+
 ## Installation
 
 ```bash
