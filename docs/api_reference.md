@@ -319,4 +319,4 @@ Generates a temporary filename.
 
 - `prefix`: Prefix for the temporary filename (default: 'desktopstt_').
 - `suffix`: Suffix for the temporary filename (default: '.wav').
-- Returns: Path to the temporary file. 
+- Returns: Path to the temporary file.

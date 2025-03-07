@@ -39,4 +39,4 @@ Replace `username` with your GitHub username or organization name.
 To enable automatic PyPI releases, you need to:
 
 1. Create a PyPI API token at https://pypi.org/manage/account/token/
-2. Add the token as a secret in your GitHub repository settings with the name `PYPI_API_TOKEN` 
+2. Add the token as a secret in your GitHub repository settings with the name `PYPI_API_TOKEN`

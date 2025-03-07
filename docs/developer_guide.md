@@ -155,10 +155,10 @@ Example test structure:
 def test_feature():
     # Arrange
     # Set up the test environment
-    
+
     # Act
     # Call the function or method being tested
-    
+
     # Assert
     # Verify the expected outcome
 ```
@@ -212,13 +212,13 @@ Example:
 ```python
 def process_audio(data: bytes) -> str:
     """Process audio data and return the transcription.
-    
+
     Args:
         data: The audio data as bytes.
-        
+
     Returns:
         The transcribed text.
     """
     # Implementation
     return transcription
-``` 
+```

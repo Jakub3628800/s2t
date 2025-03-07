@@ -4,81 +4,72 @@ Popup recorder for DesktopSTT.
 Shows a window during recording with a stop button and recording indicator.
 """
 
-import os
-import sys
-import time
-import logging
 import argparse
+import logging
+import os
 import signal
+import sys
 import threading
-import numpy as np
+import time
+
 import gi
+import numpy as np
 
 # Import gi modules first
-gi.require_version('Gtk', '4.0')
+gi.require_version("Gtk", "4.0")
 # Import all modules at the top
-from gi.repository import Gtk, GLib, Gdk  # noqa: E402
+from gi.repository import GLib, Gtk  # noqa: E402
+
 from desktopstt.audio import AudioRecorder  # noqa: E402
 from desktopstt.backends import get_backend  # noqa: E402
-from desktopstt.config import load_config, DEFAULT_CONFIG_PATH  # noqa: E402
+from desktopstt.config import DEFAULT_CONFIG_PATH, load_config  # noqa: E402
 from desktopstt.utils import load_dotenv  # noqa: E402
 
 # Parse command line arguments
-parser = argparse.ArgumentParser(description='Record audio and transcribe it with a popup window.')
+parser = argparse.ArgumentParser(description="Record audio and transcribe it with a popup window.")
 parser.add_argument(
-    '--time',
+    "--time",
     type=float,
-    help='Recording time in seconds (default: record until stopped)'
+    help="Recording time in seconds (default: record until stopped)",
 )
 parser.add_argument(
-    '--output',
+    "--output",
     type=str,
-    help='Output file for transcription (default: print to stdout)'
+    help="Output file for transcription (default: print to stdout)",
 )
 parser.add_argument(
-    '--config',
+    "--config",
     type=str,
     default=DEFAULT_CONFIG_PATH,
-    help=f'Path to config file (default: {DEFAULT_CONFIG_PATH})'
+    help=f"Path to config file (default: {DEFAULT_CONFIG_PATH})",
 )
 parser.add_argument(
-    '--env-file',
-    type=str,
-    default='.env',
-    help='Path to .env file (default: .env)'
+    "--env-file", type=str, default=".env", help="Path to .env file (default: .env)"
 )
+parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 parser.add_argument(
-    '--debug',
-    action='store_true',
-    help='Enable debug logging'
+    "--silent",
+    action="store_true",
+    help="Output only the transcribed text (no logging)",
 )
+parser.add_argument("--no-vad", action="store_true", help="Disable voice activity detection")
 parser.add_argument(
-    '--silent',
-    action='store_true',
-    help='Output only the transcribed text (no logging)'
-)
-parser.add_argument(
-    '--no-vad',
-    action='store_true',
-    help='Disable voice activity detection'
-)
-parser.add_argument(
-    '--silence-threshold',
+    "--silence-threshold",
     type=float,
     default=0.1,
-    help='Threshold for silence detection (0.0-1.0, default: 0.1)'
+    help="Threshold for silence detection (0.0-1.0, default: 0.1)",
 )
 parser.add_argument(
-    '--silence-duration',
+    "--silence-duration",
     type=float,
     default=5.0,
-    help='Duration of silence before stopping (seconds, default: 5.0)'
+    help="Duration of silence before stopping (seconds, default: 5.0)",
 )
 parser.add_argument(
-    '--min-recording-time',
+    "--min-recording-time",
     type=float,
     default=3.0,
-    help='Minimum recording time before VAD kicks in (seconds, default: 3.0)'
+    help="Minimum recording time before VAD kicks in (seconds, default: 3.0)",
 )
 
 # Parse arguments
@@ -89,16 +80,14 @@ log_level = logging.DEBUG if args.debug else logging.INFO
 if args.silent:
     log_level = logging.ERROR  # Suppress most logs in silent mode
 
-logging.basicConfig(
-    level=log_level,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 # Suppress all logs except for critical errors if silent mode is enabled
 if args.silent:
     logging.disable(logging.CRITICAL)
 
 logger = logging.getLogger(__name__)
+
 
 class AudioLevelBar(Gtk.DrawingArea):
     """A custom widget to display audio levels."""
@@ -108,7 +97,7 @@ class AudioLevelBar(Gtk.DrawingArea):
         super().__init__()
 
         self.level = 0.0  # Current audio level (0.0 to 1.0)
-        self.peak = 0.0   # Peak level
+        self.peak = 0.0  # Peak level
         self.set_content_width(300)
         self.set_content_height(30)
         self.set_draw_func(self._draw)
@@ -260,9 +249,13 @@ class RecordingWindow(Gtk.Window):
             self.pulsing_visible = not self.pulsing_visible
 
             if self.pulsing_visible:
-                self.recording_indicator.set_markup("<span size='x-large' foreground='red'>●</span>")
+                self.recording_indicator.set_markup(
+                    "<span size='x-large' foreground='red'>●</span>"
+                )
             else:
-                self.recording_indicator.set_markup("<span size='x-large' foreground='white'>●</span>")
+                self.recording_indicator.set_markup(
+                    "<span size='x-large' foreground='white'>●</span>"
+                )
 
             return True
 
@@ -308,7 +301,7 @@ class RecordingWindow(Gtk.Window):
             if silence_duration is not None:
                 GLib.idle_add(
                     self._set_vad_status,
-                    f"<span foreground='orange'>Silence detected ({silence_duration:.1f}s)</span>"
+                    f"<span foreground='orange'>Silence detected ({silence_duration:.1f}s)</span>",
                 )
             else:
                 GLib.idle_add(self._set_vad_status, "<span>Waiting for speech...</span>")
@@ -422,7 +415,9 @@ class PopupRecorder:
 
                                 # Stop recording if silence duration exceeds threshold
                                 if silence_duration >= self.silence_duration:
-                                    logger.info(f"Stopping recording after {silence_duration:.1f}s of silence")
+                                    logger.info(
+                                        f"Stopping recording after {silence_duration:.1f}s of silence"
+                                    )
                                     GLib.idle_add(self._stop_recording_from_thread)
 
             # Call the original callback if provided
@@ -475,7 +470,7 @@ class PopupRecorder:
         try:
             logger.info(f"Transcribing audio file: {audio_file}")
             result = self.backend.transcribe(audio_file)
-            text = result.get('text', '')
+            text = result.get("text", "")
 
             if not text:
                 logger.error("No transcription result")
@@ -505,6 +500,7 @@ class PopupRecorder:
         try:
             # If duration is specified, set a timer to stop recording
             if duration and not self.vad_enabled:
+
                 def stop_after_duration():
                     logger.info(f"Recording for {duration} seconds...")
                     time.sleep(duration)
@@ -622,7 +618,7 @@ def main():
     if text:
         # Output the transcription
         if args.output:
-            with open(args.output, 'w') as f:
+            with open(args.output, "w") as f:
                 f.write(text)
             logger.info(f"Transcription saved to {args.output}")
         else:
@@ -632,6 +628,7 @@ def main():
     else:
         logger.error("Failed to transcribe audio")
         return 1
+
 
 if __name__ == "__main__":
     # Parse arguments
@@ -643,8 +640,7 @@ if __name__ == "__main__":
         log_level = logging.WARNING
 
     logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
     logger = logging.getLogger(__name__)

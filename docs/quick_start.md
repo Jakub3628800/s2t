@@ -134,4 +134,4 @@ The repository includes two convenience scripts that make it easier to use Deskt
 
 - Read the [User Guide](user_guide.md) for more detailed information
 - Check out the [API Reference](api_reference.md) if you want to use DesktopSTT programmatically
-- See the [Developer Guide](developer_guide.md) if you want to contribute to the project 
+- See the [Developer Guide](developer_guide.md) if you want to contribute to the project

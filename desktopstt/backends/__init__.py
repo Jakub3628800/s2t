@@ -5,7 +5,8 @@ Speech-to-text backend interfaces for DesktopSTT.
 from desktopstt.backends.base import STTBackend
 from desktopstt.backends.whisper_api import WhisperAPIBackend
 
-__all__ = ['STTBackend', 'WhisperAPIBackend', 'get_backend']
+__all__ = ["STTBackend", "WhisperAPIBackend", "get_backend"]
+
 
 def get_backend(config):
     """

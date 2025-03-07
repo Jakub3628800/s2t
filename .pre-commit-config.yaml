@@ -23,23 +23,25 @@ repos:
       additional_dependencies:
         - ruff-lsp
       files: ^desktopstt/
-      args: [
-        "--fix",
-        "--per-file-ignores=desktopstt/popup_recorder.py:E402,F821 desktopstt/truly_silent.py:E402 desktopstt/audio/recorder.py:E722",
-      ]
+      args: ["--fix"]
+    - id: ruff-format
+      exclude: ^tests/
+      files: ^desktopstt/
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.15.0
     hooks:
     -   id: mypy
         exclude: ^tests/
-        args: []
+        args: [--ignore-missing-imports]
         additional_dependencies:
           - numpy
           - types-pyaudio
           - types-pyyaml
 
--   repo: https://github.com/jazzband/pip-tools
-    rev: 7.4.1
+-   repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
     hooks:
-      - id: pip-compile
+    -   id: shellcheck
+        files: ^.*\.sh$
+        args: ["--severity=warning", "--exclude=SC1091,SC2094,SC2129,SC2028"]

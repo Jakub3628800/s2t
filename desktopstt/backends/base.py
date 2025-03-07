@@ -7,6 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class STTBackend(abc.ABC):
     """Abstract base class for speech-to-text backends."""
 

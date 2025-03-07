@@ -4,7 +4,7 @@
 [![Pre-commit](https://github.com/username/desktopstt/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/username/desktopstt/actions/workflows/pre-commit.yml)
 [![Release](https://github.com/username/desktopstt/actions/workflows/release.yml/badge.svg)](https://github.com/username/desktopstt/actions/workflows/release.yml)
 
-A desktop application for Linux that records speech and converts it to text using various speech recognition backends.
+A desktop application for Linux that records speech and converts it to text using OpenAI's Whisper API. It provides both GUI and headless modes for flexible usage.
 
 ## Features
 
@@ -12,12 +12,17 @@ A desktop application for Linux that records speech and converts it to text usin
   - Voice activity detection (VAD) for automatic recording stop
   - Audio level visualization
   - Customizable silence detection settings
+  - Immediate recording mode (starts recording as soon as the window opens)
   - Silent mode for clean output
 
 - **Headless Mode**: A terminal-based version without any GUI
   - Perfect for scripts and automation
   - Minimal dependencies
   - Clean output for piping to other commands
+
+- **Convenience Scripts**:
+  - `desktopstt-popup-silent.sh`: Optimized popup recorder that starts recording immediately
+  - `desktopstt-silent.sh`: Headless recorder for terminal usage
 
 ## Documentation
 
@@ -42,6 +47,14 @@ source .venv/bin/activate
 # Install the package
 pip install -e .
 ```
+
+### Dependencies
+
+- Python 3.12 or higher
+- GTK 4 (for popup mode)
+- PyAudio
+- OpenAI API key
+- `wtype` (for automatic typing of transcribed text)
 
 ## Usage
 
@@ -74,21 +87,24 @@ make run-silent
 
 ### Convenience Scripts
 
-The repository includes two convenience scripts that can be installed to your PATH:
+The repository includes two convenience scripts that can be used directly or installed to your PATH:
 
-#### Option 1: Using the installation script
+#### Optimized Popup Script (`desktopstt-popup-silent.sh`)
 
-```bash
-# Run the installation script
-./install_scripts.sh
-```
+This script provides an optimized popup recorder that:
+- Starts recording immediately when the window opens (no waiting for speech)
+- Shows "Recording in progress" status right away
+- Automatically stops after 3 seconds of silence
+- Types the transcribed text at your cursor position using `wtype`
 
-This script will:
-1. Copy the scripts to your ~/bin directory
-2. Make them executable
-3. Add ~/bin to your PATH if it's not already there
+#### Silent Script (`desktopstt-silent.sh`)
 
-#### Option 2: Manual installation
+This script provides a headless recorder that:
+- Records audio without showing a GUI
+- Automatically stops after detecting silence
+- Types the transcribed text at your cursor position using `wtype`
+
+#### Installation
 
 ```bash
 # Copy the scripts to your bin directory
@@ -100,11 +116,6 @@ chmod +x ~/bin/desktopstt-popup-silent ~/bin/desktopstt-silent
 echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc  # or ~/.zshrc
 source ~/.bashrc  # or ~/.zshrc
 ```
-
-These scripts will:
-1. Run the appropriate command
-2. Suppress warnings and error messages
-3. Pipe the output to `wtype` to automatically type the transcribed text at your cursor position
 
 ## API Key Setup
 
@@ -136,6 +147,38 @@ Create a file named `.env` in the project root:
 ```
 OPENAI_API_KEY=your-api-key-here
 ```
+
+## Configuration Options
+
+### Silence Detection
+
+You can customize the silence detection parameters:
+
+- `silence_threshold`: Threshold for silence detection (0.0-1.0, default: 0.1)
+- `silence_duration`: Duration of silence before stopping (seconds, default: 5.0)
+
+Example:
+```bash
+desktopstt-popup --silence-threshold 0.05 --silence-duration 3.0
+```
+
+Or in the convenience script:
+```bash
+./desktopstt-popup-silent.sh  # Uses 0.05 threshold and 3.0 seconds by default
+```
+
+## Project Structure
+
+- `desktopstt/`: Main package directory
+  - `popup_recorder.py`: GUI recorder implementation
+  - `truly_silent.py`: Headless recorder implementation
+  - `config.py`: Configuration management
+  - `utils.py`: Utility functions
+  - `audio/`: Audio recording and processing
+  - `backends/`: Speech-to-text backend implementations
+
+- `desktopstt-popup-silent.sh`: Optimized popup recorder script
+- `desktopstt-silent.sh`: Headless recorder script
 
 ## License
 

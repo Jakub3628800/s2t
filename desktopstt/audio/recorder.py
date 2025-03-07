@@ -2,15 +2,17 @@
 Audio recording functionality for DesktopSTT.
 """
 
-import os
-import wave
 import logging
+import os
 import tempfile
 import threading
-import pyaudio
+import wave
 from datetime import datetime
 
+import pyaudio
+
 logger = logging.getLogger(__name__)
+
 
 class AudioRecorder:
     """Class to handle audio recording from microphone."""
@@ -46,17 +48,14 @@ class AudioRecorder:
                 rate=self.sample_rate,
                 input=True,
                 input_device_index=self.device_index,
-                frames_per_buffer=self.chunk_size
+                frames_per_buffer=self.chunk_size,
             )
 
             self.frames = []
             self.is_recording = True
 
             # Start recording in a separate thread
-            self.recording_thread = threading.Thread(
-                target=self._record_thread,
-                args=(callback,)
-            )
+            self.recording_thread = threading.Thread(target=self._record_thread, args=(callback,))
             self.recording_thread.daemon = True
             self.recording_thread.start()
 
@@ -116,11 +115,11 @@ class AudioRecorder:
             temp_path = os.path.join(temp_dir, f"desktopstt_recording_{timestamp}.wav")
 
             # Save the audio data to the temporary file
-            with wave.open(temp_path, 'wb') as wf:
+            with wave.open(temp_path, "wb") as wf:
                 wf.setnchannels(self.channels)
                 wf.setsampwidth(self.pyaudio.get_sample_size(self.format))
                 wf.setframerate(self.sample_rate)
-                wf.writeframes(b''.join(self.frames))
+                wf.writeframes(b"".join(self.frames))
 
             logger.info(f"Saved recording to {temp_path}")
             return temp_path
@@ -155,17 +154,19 @@ class AudioRecorder:
         try:
             p = pyaudio.PyAudio()
             info = p.get_host_api_info_by_index(0)
-            num_devices = info.get('deviceCount')
+            num_devices = info.get("deviceCount")
 
             for i in range(num_devices):
                 device_info = p.get_device_info_by_host_api_device_index(0, i)
-                if device_info.get('maxInputChannels') > 0:
-                    devices.append({
-                        'index': i,
-                        'name': device_info.get('name'),
-                        'channels': device_info.get('maxInputChannels'),
-                        'sample_rate': device_info.get('defaultSampleRate')
-                    })
+                if device_info.get("maxInputChannels") > 0:
+                    devices.append(
+                        {
+                            "index": i,
+                            "name": device_info.get("name"),
+                            "channels": device_info.get("maxInputChannels"),
+                            "sample_rate": device_info.get("defaultSampleRate"),
+                        }
+                    )
 
             p.terminate()
         except Exception as e:

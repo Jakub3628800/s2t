@@ -53,4 +53,4 @@ desktopstt-silent
 
 ## License
 
-DesktopSTT is released under the [MIT License](../LICENSE). 
+DesktopSTT is released under the [MIT License](../LICENSE).

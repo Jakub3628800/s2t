@@ -26,3 +26,17 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["desktopstt"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "C4", "UP", "N", "S", "A"]
+ignore = ["ANN", "S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"desktopstt/popup_recorder.py" = ["E402", "F821", "E501"]
+"desktopstt/truly_silent.py" = ["E402"]
+"desktopstt/audio/recorder.py" = ["E722"]
+"tests/*" = ["S101"]

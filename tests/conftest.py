@@ -1,9 +1,12 @@
 """
-Configuration file for pytest.
+Configuration for pytest.
 """
 
-import os
 import sys
+import os
 
-# Add the parent directory to the path so that the tests can import the package
+# Mock sys.argv to prevent argparse errors
+sys.argv = ['pytest']
+
+# Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))

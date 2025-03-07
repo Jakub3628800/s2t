@@ -2,8 +2,9 @@
 Configuration management for DesktopSTT.
 """
 
-import os
 import logging
+import os
+
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -39,23 +40,26 @@ DEFAULT_CONFIG = {
         "auto_copy_to_clipboard": False,
         "save_transcriptions": True,
         "transcriptions_dir": os.path.expanduser("~/Documents/DesktopSTT"),
-    }
+    },
 }
+
 
 def ensure_config_dir():
     """Ensure the configuration directory exists."""
     os.makedirs(CONFIG_DIR, exist_ok=True)
+
 
 def create_default_config(config_path=DEFAULT_CONFIG_PATH):
     """Create a default configuration file if it doesn't exist."""
     ensure_config_dir()
 
     if not os.path.exists(config_path):
-        with open(config_path, 'w') as f:
+        with open(config_path, "w") as f:
             yaml.dump(DEFAULT_CONFIG, f, default_flow_style=False)
         logger.info(f"Created default configuration at {config_path}")
 
     return DEFAULT_CONFIG
+
 
 def load_config(config_path=DEFAULT_CONFIG_PATH):
     """Load configuration from file, creating default if needed."""
@@ -63,7 +67,7 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
         return create_default_config(config_path)
 
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             config = yaml.safe_load(f)
         logger.info(f"Loaded configuration from {config_path}")
 
@@ -76,18 +80,20 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
         logger.error(f"Error loading configuration: {e}")
         return DEFAULT_CONFIG
 
+
 def save_config(config, config_path=DEFAULT_CONFIG_PATH):
     """Save configuration to file."""
     ensure_config_dir()
 
     try:
-        with open(config_path, 'w') as f:
+        with open(config_path, "w") as f:
             yaml.dump(config, f, default_flow_style=False)
         logger.info(f"Saved configuration to {config_path}")
         return True
     except Exception as e:
         logger.error(f"Error saving configuration: {e}")
         return False
+
 
 def _deep_update(d, u):
     """Recursively update a dictionary."""

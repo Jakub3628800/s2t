@@ -2,12 +2,13 @@
 Utility functions for DesktopSTT.
 """
 
-import os
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
-def load_dotenv(dotenv_path='.env'):
+
+def load_dotenv(dotenv_path=".env"):
     """
     Load environment variables from a .env file.
 
@@ -23,13 +24,13 @@ def load_dotenv(dotenv_path='.env'):
             return False
 
         logger.info(f"Loading environment variables from {dotenv_path}")
-        with open(dotenv_path, 'r') as f:
+        with open(dotenv_path) as f:
             for line in f:
                 line = line.strip()
-                if not line or line.startswith('#'):
+                if not line or line.startswith("#"):
                     continue
 
-                key, value = line.split('=', 1)
+                key, value = line.split("=", 1)
                 key = key.strip()
                 value = value.strip()
 

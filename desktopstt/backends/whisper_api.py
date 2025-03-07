@@ -2,12 +2,15 @@
 OpenAI Whisper API backend for speech-to-text conversion.
 """
 
-import os
 import logging
+import os
+
 import openai
+
 from desktopstt.backends.base import STTBackend
 
 logger = logging.getLogger(__name__)
+
 
 class WhisperAPIBackend(STTBackend):
     """OpenAI Whisper API backend for speech-to-text conversion."""
@@ -69,15 +72,15 @@ class WhisperAPIBackend(STTBackend):
                     model=self.model,
                     file=audio_file,
                     language=self.language if self.language else None,
-                    response_format="verbose_json"
+                    response_format="verbose_json",
                 )
 
             # Extract the transcription results
             result = {
-                'text': response.text,
-                'language': response.language,
-                'segments': response.segments,
-                'duration': response.duration
+                "text": response.text,
+                "language": response.language,
+                "segments": response.segments,
+                "duration": response.duration,
             }
 
             logger.info(f"Transcription successful: {len(result['text'])} characters")
@@ -86,10 +89,10 @@ class WhisperAPIBackend(STTBackend):
         except Exception as e:
             logger.error(f"Error transcribing audio with Whisper API: {e}")
             return {
-                'text': f"Error: {str(e)}",
-                'language': self.language,
-                'segments': [],
-                'duration': 0.0
+                "text": f"Error: {str(e)}",
+                "language": self.language,
+                "segments": [],
+                "duration": 0.0,
             }
 
     def is_available(self):

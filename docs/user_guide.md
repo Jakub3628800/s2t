@@ -271,4 +271,4 @@ A: There is no built-in limit to recording duration, but longer recordings will 
 
 ### Q: Can I customize the keyboard shortcuts?
 
-A: Currently, DesktopSTT does not support customizable keyboard shortcuts. This feature may be added in future versions. 
+A: Currently, DesktopSTT does not support customizable keyboard shortcuts. This feature may be added in future versions.
