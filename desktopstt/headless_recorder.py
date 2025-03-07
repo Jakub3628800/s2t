@@ -46,9 +46,11 @@ def main():
     if args.silent:
         log_level = logging.ERROR  # Suppress most logs in silent mode
 
+    # Configure logging to stderr instead of stdout
     logging.basicConfig(
         level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        stream=sys.stderr
     )
 
     # Load environment variables from .env file
@@ -88,6 +90,9 @@ def main():
 
     # Handle the transcription result
     if text:
+        # Output the transcription to stdout with a special marker for easy extraction
+        print(f"TRANSCRIPTION_START:{text}:TRANSCRIPTION_END")
+        
         # Show notification that transcription was successful
         if not args.no_notifications:
             show_notification("DesktopSTT", "Transcription successful")
@@ -104,8 +109,6 @@ def main():
                 logger.info("Transcription typed using wtype")
             except Exception as e:
                 logger.error(f"Error using wtype: {e}")
-                # Fall back to printing
-                print(text)
             finally:
                 # Clean up temporary file
                 os.unlink(temp_output)
@@ -114,9 +117,6 @@ def main():
             with open(args.output, 'w') as f:
                 f.write(text + "\n")  # Add newline at the end
             logger.info(f"Transcription saved to {args.output}")
-        else:
-            # Output to stdout
-            print(text)
         return 0
     else:
         # Show notification that transcription failed

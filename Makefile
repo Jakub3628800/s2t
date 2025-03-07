@@ -49,10 +49,10 @@ run-popup-silent:
 	PYTHONWARNINGS=ignore $(PYTHON) -m desktopstt.popup_recorder --silent --silence-duration 3.0 2>/dev/null
 
 run-popup-immediate:
-	$(PYTHON) -m desktopstt.immediate_popup --wtype
+	$(PYTHON) -m desktopstt.immediate_popup
 
 run-headless:
-	$(PYTHON) -m desktopstt.headless_recorder --wtype
+	$(PYTHON) -m desktopstt.headless_recorder
 
 run-silent:
 	$(PYTHON) -m desktopstt.truly_silent

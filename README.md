@@ -66,10 +66,10 @@ pip install -e .
 python -m desktopstt.popup_recorder
 
 # Immediate popup recorder (starts recording immediately)
-python -m desktopstt.immediate_popup --wtype
+python -m desktopstt.immediate_popup
 
 # Headless recorder with notifications
-python -m desktopstt.headless_recorder --wtype
+python -m desktopstt.headless_recorder
 
 # Truly silent recorder (no GUI, no notifications)
 python -m desktopstt.truly_silent
@@ -84,10 +84,10 @@ After installation, you can use the following command-line tools:
 desktopstt-popup
 
 # Immediate popup recorder
-desktopstt-immediate --wtype
+desktopstt-immediate
 
 # Headless recorder with notifications
-desktopstt-headless --wtype
+desktopstt-headless
 
 # Truly silent recorder
 desktopstt-silent
@@ -190,7 +190,7 @@ You can customize the silence detection parameters:
 
 Example:
 ```bash
-python -m desktopstt.immediate_popup --silence-threshold 0.05 --silence-duration 3.0 --wtype
+python -m desktopstt.immediate_popup --silence-threshold 0.05 --silence-duration 3.0
 ```
 
 Or in the convenience script:
