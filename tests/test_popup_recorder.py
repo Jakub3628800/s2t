@@ -50,11 +50,11 @@ def mock_audio_recorder():
     """Return a mock audio recorder for testing."""
     recorder = MagicMock()
     recorder.start_recording.return_value = True
-    
+
     # Create a temporary file for the recording
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
     temp_file.close()
-    
+
     recorder.stop_recording.return_value = temp_file.name
     return recorder
 
@@ -65,9 +65,9 @@ def test_popup_recorder_init(mock_audio_recorder_class, mock_get_backend, mock_c
     """Test PopupRecorder initialization."""
     mock_audio_recorder_class.return_value = MagicMock()
     mock_get_backend.return_value = MagicMock()
-    
+
     recorder = PopupRecorder(mock_config)
-    
+
     assert recorder.vad_enabled == mock_config["popup_recorder"]["vad_enabled"]
     assert recorder.silence_threshold == mock_config["popup_recorder"]["silence_threshold"]
     assert recorder.silence_duration == mock_config["popup_recorder"]["silence_duration"]
@@ -82,14 +82,14 @@ def test_start_recording(mock_audio_recorder_class, mock_get_backend, mock_confi
     """Test starting recording."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
     mock_get_backend.return_value = mock_backend
-    
+
     recorder = PopupRecorder(mock_config)
-    
+
     # Mock the _show_window method to avoid GTK issues in tests
     recorder._show_window = MagicMock()
-    
+
     result = recorder.start_recording()
-    
+
     assert result is True
     assert recorder.is_recording is True
     assert mock_audio_recorder.start_recording.called
@@ -102,12 +102,12 @@ def test_stop_recording(mock_audio_recorder_class, mock_get_backend, mock_config
     """Test stopping recording."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
     mock_get_backend.return_value = mock_backend
-    
+
     recorder = PopupRecorder(mock_config)
     recorder.is_recording = True
-    
+
     audio_file = recorder.stop_recording()
-    
+
     assert recorder.is_recording is False
     assert mock_audio_recorder.stop_recording.called
     assert audio_file == mock_audio_recorder.stop_recording.return_value
@@ -119,16 +119,16 @@ def test_transcribe(mock_audio_recorder_class, mock_get_backend, mock_config, mo
     """Test transcription."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
     mock_get_backend.return_value = mock_backend
-    
+
     recorder = PopupRecorder(mock_config)
-    
+
     # Create a temporary file for testing
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
     temp_file.close()
-    
+
     try:
         text = recorder.transcribe(temp_file.name)
-        
+
         assert text == "This is a test transcription"
         assert mock_backend.transcribe.called
         assert mock_backend.transcribe.call_args[0][0] == temp_file.name
@@ -138,4 +138,4 @@ def test_transcribe(mock_audio_recorder_class, mock_get_backend, mock_config, mo
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", __file__]) 
+    pytest.main(["-v", __file__])

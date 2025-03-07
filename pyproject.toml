@@ -19,6 +19,8 @@ license = {text = "MIT"}
 [project.scripts]
 desktopstt-popup = "desktopstt.popup_recorder:main"
 desktopstt-silent = "desktopstt.truly_silent:main"
+desktopstt-immediate = "desktopstt.immediate_popup:main"
+desktopstt-headless = "desktopstt.headless_recorder:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]

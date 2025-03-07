@@ -1,4 +1,4 @@
-.PHONY: install dev-install clean test run-popup run-silent run-popup-immediate build
+.PHONY: install dev-install clean test run-popup run-silent run-popup-immediate run-headless build
 
 # Default Python interpreter
 PYTHON ?= python3
@@ -49,7 +49,10 @@ run-popup-silent:
 	PYTHONWARNINGS=ignore $(PYTHON) -m desktopstt.popup_recorder --silent --silence-duration 3.0 2>/dev/null
 
 run-popup-immediate:
-	./desktopstt-popup-silent.sh
+	$(PYTHON) -m desktopstt.immediate_popup --wtype
+
+run-headless:
+	$(PYTHON) -m desktopstt.headless_recorder --wtype
 
 run-silent:
 	$(PYTHON) -m desktopstt.truly_silent
@@ -77,7 +80,8 @@ help:
 	@echo "  run-popup       Run with a pop-up recording window (with VAD)"
 	@echo "  run-popup-silent Run with a pop-up recording window in silent mode"
 	@echo "  run-popup-immediate Run with a pop-up that starts recording immediately"
-	@echo "  run-silent      Run the headless terminal-based version"
+	@echo "  run-headless    Run the headless recorder with notifications"
+	@echo "  run-silent      Run the truly silent recorder"
 	@echo "  run-script-popup Run the optimized popup script"
 	@echo "  run-script-silent Run the silent script"
 	@echo "  help            Show this help message"

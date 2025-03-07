@@ -31,7 +31,7 @@ def test_popup_silent_script_content(mock_run):
     # Read the script content
     with open("desktopstt-popup-silent.sh", "r") as f:
         content = f.read()
-    
+
     # Check for key components
     assert "popup_recorder_immediate.py" in content
     assert "ImmediateRecordingWindow" in content
@@ -48,7 +48,7 @@ def test_silent_script_content(mock_run):
     # Read the script content
     with open("desktopstt-silent.sh", "r") as f:
         content = f.read()
-    
+
     # Check for key components
     assert "silent_recorder.py" in content  # Check for the script name
     assert "SilentRecorder" in content
@@ -64,7 +64,7 @@ def test_popup_silent_script_execution(mock_popen):
     process_mock = MagicMock()
     process_mock.returncode = 0
     mock_popen.return_value = process_mock
-    
+
     # Try to execute the script (without actually running it)
     try:
         # Just check if the script is executable
@@ -80,7 +80,7 @@ def test_silent_script_execution(mock_popen):
     process_mock = MagicMock()
     process_mock.returncode = 0
     mock_popen.return_value = process_mock
-    
+
     # Try to execute the script (without actually running it)
     try:
         # Just check if the script is executable
@@ -90,4 +90,4 @@ def test_silent_script_execution(mock_popen):
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", __file__]) 
+    pytest.main(["-v", __file__])

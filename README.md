@@ -19,6 +19,7 @@ A desktop application for Linux that records speech and converts it to text usin
   - Perfect for scripts and automation
   - Minimal dependencies
   - Clean output for piping to other commands
+  - Desktop notifications support
 
 - **Convenience Scripts**:
   - `desktopstt-popup-silent.sh`: Optimized popup recorder that starts recording immediately
@@ -58,31 +59,61 @@ pip install -e .
 
 ## Usage
 
-### Popup Recorder
+### Python Modules
 
 ```bash
-# Basic usage with voice activity detection
-desktopstt-popup
+# Standard popup recorder with voice activity detection
+python -m desktopstt.popup_recorder
 
-# Silent mode with 3 seconds silence duration
-desktopstt-popup --silent --silence-duration 3.0
+# Immediate popup recorder (starts recording immediately)
+python -m desktopstt.immediate_popup --wtype
 
-# Start recording immediately without waiting for speech
-desktopstt-popup --no-vad
+# Headless recorder with notifications
+python -m desktopstt.headless_recorder --wtype
 
-# Using make
-make run-popup
-make run-popup-silent
+# Truly silent recorder (no GUI, no notifications)
+python -m desktopstt.truly_silent
 ```
 
-### Headless Mode
+### Command-line Tools
+
+After installation, you can use the following command-line tools:
 
 ```bash
-# Basic usage
-desktopstt-silent
+# Standard popup recorder
+desktopstt-popup
 
-# Using make
+# Immediate popup recorder
+desktopstt-immediate --wtype
+
+# Headless recorder with notifications
+desktopstt-headless --wtype
+
+# Truly silent recorder
+desktopstt-silent
+```
+
+### Makefile Targets
+
+```bash
+# Run the standard popup recorder
+make run-popup
+
+# Run the popup recorder in silent mode
+make run-popup-silent
+
+# Run the immediate popup recorder
+make run-popup-immediate
+
+# Run the headless recorder
+make run-headless
+
+# Run the truly silent recorder
 make run-silent
+
+# Run the convenience scripts
+make run-script-popup
+make run-script-silent
 ```
 
 ### Convenience Scripts
@@ -159,7 +190,7 @@ You can customize the silence detection parameters:
 
 Example:
 ```bash
-desktopstt-popup --silence-threshold 0.05 --silence-duration 3.0
+python -m desktopstt.immediate_popup --silence-threshold 0.05 --silence-duration 3.0 --wtype
 ```
 
 Or in the convenience script:
@@ -171,7 +202,9 @@ Or in the convenience script:
 
 - `desktopstt/`: Main package directory
   - `popup_recorder.py`: GUI recorder implementation
-  - `truly_silent.py`: Headless recorder implementation
+  - `immediate_popup.py`: Immediate recording popup implementation
+  - `truly_silent.py`: Basic silent recorder implementation
+  - `headless_recorder.py`: Headless recorder with notifications
   - `config.py`: Configuration management
   - `utils.py`: Utility functions
   - `audio/`: Audio recording and processing
