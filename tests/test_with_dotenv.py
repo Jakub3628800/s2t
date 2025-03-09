@@ -1,23 +1,27 @@
 #!/usr/bin/env python3
 """
-Test script that loads the OpenAI API key from a .env file and tests the transcription functionality.
+Tests for using the .env file with the audio recorder, backend, and configuration.
 """
 
+import logging
 import os
 import sys
 import time
-import logging
-from desktopstt.audio import AudioRecorder
-from desktopstt.backends import get_backend
-from desktopstt.config import load_config, DEFAULT_CONFIG_PATH
-from desktopstt.utils import load_dotenv
+
+# Add the parent directory to the path so we can import the package
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from s2t.audio import AudioRecorder
+from s2t.backends import get_backend
+from s2t.config import DEFAULT_CONFIG_PATH, load_config
+from s2t.utils import load_dotenv
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 def main():
     """Test audio recording and transcription with API key from .env file."""
@@ -75,7 +79,7 @@ def main():
     logger.info("Transcribing audio...")
     try:
         result = backend.transcribe(audio_file)
-        text = result.get('text', '')
+        text = result.get("text", "")
 
         if not text:
             logger.error("No transcription result")
@@ -88,6 +92,7 @@ def main():
     except Exception as e:
         logger.error(f"Error transcribing audio: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

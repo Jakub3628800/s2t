@@ -4,7 +4,6 @@ OpenAI Whisper API backend for S2T.
 
 import logging
 import os
-import tempfile
 
 import openai
 

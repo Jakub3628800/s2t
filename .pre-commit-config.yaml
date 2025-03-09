@@ -2,42 +2,36 @@ default_language_version:
     python: python3.12
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v4.5.0
     hooks:
-        - id: check-yaml
-        - id: debug-statements
-        - id: check-ast
-        - id: check-executables-have-shebangs
-        - id: check-shebang-scripts-are-executable
-        - id: check-merge-conflict
         - id: trailing-whitespace
         - id: end-of-file-fixer
-        - id: fix-encoding-pragma
-          args: [--remove]
+        - id: check-yaml
+        - id: check-added-large-files
+        - id: check-toml
+        - id: debug-statements
 
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.9.9
-  hooks:
-    - id: ruff
-      exclude: ^tests/
-      additional_dependencies:
-        - ruff-lsp
-      files: ^desktopstt/
-      args: ["--fix"]
-    - id: ruff-format
-      exclude: ^tests/
-      files: ^desktopstt/
+-   repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+    -   id: ruff
+        args: [--fix]
+    -   id: ruff-format
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+    rev: v1.7.1
     hooks:
     -   id: mypy
-        exclude: ^tests/
+        additional_dependencies: [types-PyYAML]
+        files: ^s2t/
         args: [--ignore-missing-imports]
-        additional_dependencies:
-          - numpy
-          - types-pyaudio
-          - types-pyyaml
+
+-   repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+    -   id: codespell
+        files: ^s2t/
+        args: [--ignore-words-list=hist]
 
 -   repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.9.0.6

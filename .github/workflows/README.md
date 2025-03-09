@@ -1,35 +1,33 @@
 # GitHub Actions Workflows
 
-This directory contains GitHub Actions workflows for automated testing, code quality checks, and releases.
+This directory contains GitHub Actions workflows for automating various tasks in the repository.
 
-## Workflows
+## Tests
 
-### Tests
+![Tests](https://github.com/username/s2t/actions/workflows/tests.yml/badge.svg)
 
-![Tests](https://github.com/username/desktopstt/actions/workflows/tests.yml/badge.svg)
+This workflow runs the test suite on every push and pull request to the main branch.
 
-Runs the test suite using pytest and uploads coverage reports to Codecov.
+## Pre-commit
 
-### Pre-commit Checks
+![Pre-commit](https://github.com/username/s2t/actions/workflows/pre-commit.yml/badge.svg)
 
-![Pre-commit](https://github.com/username/desktopstt/actions/workflows/pre-commit.yml/badge.svg)
+This workflow runs pre-commit hooks on every push and pull request to the main branch.
 
-Runs pre-commit hooks to ensure code quality and consistency.
+## Release
 
-### Release
+![Release](https://github.com/username/s2t/actions/workflows/release.yml/badge.svg)
 
-![Release](https://github.com/username/desktopstt/actions/workflows/release.yml/badge.svg)
+This workflow creates a new release when a new tag is pushed to the repository.
 
-Automatically creates a GitHub release and publishes to PyPI when a new tag is pushed.
+## Badge Markdown
 
-## Adding Badges to Main README
-
-Add these badges to your main README.md file:
+You can use the following markdown to add badges to your README.md file:
 
 ```markdown
-[![Tests](https://github.com/username/desktopstt/actions/workflows/tests.yml/badge.svg)](https://github.com/username/desktopstt/actions/workflows/tests.yml)
-[![Pre-commit](https://github.com/username/desktopstt/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/username/desktopstt/actions/workflows/pre-commit.yml)
-[![Release](https://github.com/username/desktopstt/actions/workflows/release.yml/badge.svg)](https://github.com/username/desktopstt/actions/workflows/release.yml)
+[![Tests](https://github.com/username/s2t/actions/workflows/tests.yml/badge.svg)](https://github.com/username/s2t/actions/workflows/tests.yml)
+[![Pre-commit](https://github.com/username/s2t/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/username/s2t/actions/workflows/pre-commit.yml)
+[![Release](https://github.com/username/s2t/actions/workflows/release.yml/badge.svg)](https://github.com/username/s2t/actions/workflows/release.yml)
 ```
 
 Replace `username` with your GitHub username or organization name.

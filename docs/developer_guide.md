@@ -1,224 +1,187 @@
-# DesktopSTT Developer Guide
+# S2T Developer Guide
 
-This guide provides information for developers who want to contribute to DesktopSTT or understand its internal architecture.
+This guide provides information for developers who want to contribute to S2T or understand its internal architecture.
 
 ## Table of Contents
 
-1. [Project Structure](#project-structure)
-2. [Architecture](#architecture)
-3. [Core Components](#core-components)
-4. [Development Setup](#development-setup)
-5. [Testing](#testing)
-6. [Contributing](#contributing)
-7. [Code Style](#code-style)
+1. [Development Environment](#development-environment)
+2. [Project Structure](#project-structure)
+3. [Architecture](#architecture)
+4. [Testing](#testing)
+5. [Contributing](#contributing)
+6. [Coding Standards](#coding-standards)
+
+## Development Environment
+
+To set up a development environment for S2T, follow these steps:
+
+1. Clone the repository
+2. Create a virtual environment
+3. Install the package in development mode
+4. Install development dependencies
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/s2t.git
+cd s2t
+
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install the package in development mode
+pip install -e ".[dev]"
+```
 
 ## Project Structure
 
-The DesktopSTT project is organized as follows:
+The S2T project is organized as follows:
 
 ```
-desktopstt/
-├── desktopstt/               # Main package
-│   ├── __init__.py           # Package initialization
-│   ├── audio/                # Audio recording functionality
+s2t/
+├── s2t/               # Main package
+│   ├── __init__.py    # Package initialization
+│   ├── audio/         # Audio recording functionality
 │   │   ├── __init__.py
-│   │   └── recorder.py       # Audio recorder implementation
-│   ├── backends/             # Speech-to-text backends
+│   │   └── recorder.py
+│   ├── backends/      # Speech-to-text backends
 │   │   ├── __init__.py
-│   │   ├── base.py           # Base backend interface
-│   │   └── whisper_api.py    # OpenAI Whisper API implementation
-│   ├── config.py             # Configuration handling
+│   │   ├── base.py
+│   │   └── whisper_api.py
+│   ├── config.py      # Configuration management
+│   ├── headless_recorder.py  # Headless recorder implementation
+│   ├── immediate_popup.py    # Immediate popup recorder
 │   ├── popup_recorder.py     # Popup recorder implementation
-│   ├── truly_silent.py       # Headless mode implementation
-│   ├── ui/                   # UI components
-│   │   └── __init__.py
-│   └── utils.py              # Utility functions
-├── tests/                    # Test suite
-├── .github/                  # GitHub configuration
-│   └── workflows/            # GitHub Actions workflows
-├── .pre-commit-config.yaml   # Pre-commit hooks configuration
-├── desktopstt-popup-silent.sh # Convenience script for popup recorder
-├── desktopstt-silent.sh      # Convenience script for headless mode
-├── install_scripts.sh        # Installation script for convenience scripts
-├── Makefile                  # Build and run targets
-├── pyproject.toml            # Project metadata and dependencies
-└── README.md                 # Project overview
+│   ├── truly_silent.py       # Truly silent recorder
+│   └── utils.py       # Utility functions
+├── tests/             # Test suite
+├── docs/              # Documentation
+├── s2t-popup-silent.sh # Convenience script for popup recorder
+├── s2t-silent.sh      # Convenience script for headless mode
+├── pyproject.toml     # Project metadata and dependencies
+├── Makefile           # Build system
+└── README.md          # Project overview
 ```
 
 ## Architecture
 
-DesktopSTT follows a modular architecture with clear separation of concerns:
+S2T follows a modular architecture with clear separation of concerns:
 
-1. **Audio Recording**: Handles capturing audio from the microphone
-2. **Speech-to-Text Backend**: Converts audio to text using external services
-3. **User Interface**: Provides visual feedback and controls
-4. **Configuration**: Manages user settings and API keys
+### Audio Module
 
-The application has two main entry points:
-- `popup_recorder.py`: Graphical interface with visual feedback
-- `truly_silent.py`: Headless mode for terminal use
+The `audio` module is responsible for recording audio from the microphone. It provides the `AudioRecorder` class, which handles:
 
-## Core Components
+- Initializing the audio device
+- Recording audio in a separate thread
+- Calculating audio levels for visualization
+- Saving recorded audio to a temporary file
 
-### Audio Recorder
+### Backends Module
 
-The `AudioRecorder` class in `audio/recorder.py` handles audio capture using PyAudio. It provides methods for starting and stopping recording, and can save the recorded audio to a temporary file.
+The `backends` module provides interfaces for speech-to-text services. It includes:
 
-Key features:
-- Real-time audio level calculation
-- Callback mechanism for processing audio frames
-- Temporary file management
+- `STTBackend`: Abstract base class for all backends
+- `WhisperAPIBackend`: Implementation using OpenAI's Whisper API
+- `get_backend`: Factory function to get the appropriate backend based on configuration
 
-### Speech-to-Text Backends
+### Configuration Module
 
-The backends module provides a pluggable interface for different speech-to-text services. Currently, only the OpenAI Whisper API is implemented.
+The `config` module handles loading and managing configuration. It provides:
 
-The backend interface is defined in `backends/base.py`, and specific implementations should inherit from the `STTBackend` class and implement the required methods.
+- `load_config`: Function to load configuration from a file or the default location
+- `DEFAULT_CONFIG`: Default configuration values
+- `DEFAULT_CONFIG_PATH`: Default path to the configuration file
 
-### Popup Recorder
+### Recorder Implementations
 
-The `popup_recorder.py` module provides a graphical interface using GTK 4. It includes:
+S2T provides several recorder implementations:
 
-- A custom window with recording controls
-- Audio level visualization
-- Voice activity detection
-- Timer display
+- `PopupRecorder`: Graphical recorder with a popup window
+- `ImmediatePopupRecorder`: Popup recorder that starts recording immediately
+- `TrulySilentRecorder`: Recorder without any GUI or notifications
+- `HeadlessRecorder`: Recorder without GUI but with desktop notifications
 
-### Headless Mode
+### Utils Module
 
-The `truly_silent.py` module provides a terminal-based interface without any GUI. It's designed to be used in scripts and automation, with minimal output.
+The `utils` module provides utility functions used throughout the application, such as:
 
-## Development Setup
-
-### Prerequisites
-
-- Python 3.12 or higher
-- GTK 4 development libraries
-- PulseAudio or PipeWire development libraries
-
-### Setting Up the Development Environment
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/desktopstt.git
-   cd desktopstt
-   ```
-
-2. Create a virtual environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
-
-3. Install the package in development mode:
-   ```bash
-   pip install -e .
-   ```
-
-4. Install development dependencies:
-   ```bash
-   pip install pytest pytest-cov pre-commit
-   ```
-
-5. Set up pre-commit hooks:
-   ```bash
-   pre-commit install
-   ```
+- `load_dotenv`: Function to load environment variables from a .env file
+- `get_temp_filename`: Function to generate a temporary filename
 
 ## Testing
 
-DesktopSTT uses pytest for testing. The test suite is located in the `tests/` directory.
+S2T uses pytest for testing. The test suite is located in the `tests/` directory.
 
 ### Running Tests
 
-Run the entire test suite:
-```bash
-make test
-```
+To run the tests:
 
-Or using pytest directly:
 ```bash
-pytest tests/
-```
+# Run all tests
+pytest
 
-Run tests with coverage:
-```bash
-pytest tests/ --cov=desktopstt --cov-report=term
+# Run tests with coverage report
+pytest --cov=s2t --cov-report=term
+
+# Run a specific test file
+pytest tests/test_config.py
+
+# Run a specific test
+pytest tests/test_config.py::test_load_config
 ```
 
 ### Writing Tests
 
-When adding new features, please include tests that cover the new functionality. Tests should be placed in the `tests/` directory with a name that matches the module being tested.
+When writing tests, follow these guidelines:
 
-Example test structure:
-```python
-def test_feature():
-    # Arrange
-    # Set up the test environment
-
-    # Act
-    # Call the function or method being tested
-
-    # Assert
-    # Verify the expected outcome
-```
+- Use pytest fixtures for common setup
+- Mock external dependencies
+- Test both success and failure cases
+- Use descriptive test names
 
 ## Contributing
 
-We welcome contributions to DesktopSTT! Here's how you can contribute:
+We welcome contributions to S2T! Here's how you can contribute:
 
 1. Fork the repository
-2. Create a new branch for your feature or bugfix
+2. Create a new branch for your feature or bug fix
 3. Make your changes
-4. Run the tests to ensure everything works
-5. Run pre-commit hooks to ensure code quality
+4. Add tests for your changes
+5. Run the tests to make sure they pass
 6. Submit a pull request
 
 ### Pull Request Process
 
-1. Ensure your code passes all tests and pre-commit checks
+1. Ensure your code passes all tests
 2. Update the documentation if necessary
-3. Add a clear description of your changes
-4. Reference any related issues
+3. Add a description of your changes to the pull request
+4. Wait for a maintainer to review your pull request
 
-## Code Style
+## Coding Standards
 
-DesktopSTT follows the PEP 8 style guide with some modifications. We use ruff for linting and formatting.
+S2T follows the PEP 8 style guide with some modifications. We use ruff for linting and formatting.
 
 ### Linting
 
-Run the pre-commit hooks to lint your code:
+To lint your code:
+
 ```bash
-pre-commit run --all-files
+ruff check .
 ```
 
-### Type Hints
+### Formatting
 
-We use type hints throughout the codebase. Please include type hints in your contributions.
+To format your code:
 
-Example:
-```python
-def process_audio(data: bytes) -> str:
-    """Process audio data and return the transcription."""
-    # Implementation
-    return transcription
+```bash
+ruff format .
 ```
 
-### Documentation
+### Pre-commit Hooks
 
-Please document your code using docstrings. We follow the Google style for docstrings.
+We recommend using pre-commit hooks to ensure your code meets our standards:
 
-Example:
-```python
-def process_audio(data: bytes) -> str:
-    """Process audio data and return the transcription.
-
-    Args:
-        data: The audio data as bytes.
-
-    Returns:
-        The transcribed text.
-    """
-    # Implementation
-    return transcription
+```bash
+pip install pre-commit
+pre-commit install
 ```

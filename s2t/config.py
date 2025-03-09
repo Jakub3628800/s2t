@@ -31,15 +31,23 @@ DEFAULT_CONFIG = {
     "backends": {
         "default": "whisper_api",
         "whisper_api": {
-            "api_key": "",  # User must provide their own API key
+            "api_key": "",  # Will be loaded from environment variable
             "model": "whisper-1",
             "language": "en",
+            "temperature": 0,
+            "response_format": "json",
         },
     },
     "output": {
-        "auto_copy_to_clipboard": False,
-        "save_transcriptions": True,
-        "transcriptions_dir": os.path.expanduser("~/Documents/DesktopSTT"),
+        "format": "text",
+        "save_audio": False,
+        "transcriptions_dir": os.path.expanduser("~/Documents/S2T"),
+    },
+    "popup_recorder": {
+        "vad_enabled": True,
+        "silence_threshold": 0.1,
+        "silence_duration": 5.0,
+        "min_recording_time": 3.0,
     },
 }
 

@@ -6,18 +6,18 @@ Tests for the popup recorder module.
 import os
 import sys
 import tempfile
-import pytest
 from unittest.mock import MagicMock, patch
-from gi.repository import GLib
+
+import pytest
 
 # Mock sys.argv before importing popup_recorder
-sys.argv = ['popup_recorder']
+sys.argv = ["popup_recorder"]
 
 import gi
-gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk
 
-from s2t.popup_recorder import PopupRecorder, RecordingWindow, AudioLevelBar
+gi.require_version("Gtk", "4.0")
+
+from s2t.popup_recorder import PopupRecorder
 
 
 @pytest.fixture
@@ -25,18 +25,14 @@ def mock_config():
     """Return a mock configuration for testing."""
     return {
         "backends": {
-            "whisper_api": {
-                "api_key": "test_api_key",
-                "model": "whisper-1",
-                "language": "en"
-            }
+            "whisper_api": {"api_key": "test_api_key", "model": "whisper-1", "language": "en"}
         },
         "popup_recorder": {
             "vad_enabled": True,
             "silence_threshold": 0.1,
             "silence_duration": 2.0,
-            "min_recording_time": 1.0
-        }
+            "min_recording_time": 1.0,
+        },
     }
 
 
@@ -82,7 +78,9 @@ def test_popup_recorder_init(mock_audio_recorder_class, mock_get_backend, mock_c
 
 @patch("s2t.popup_recorder.get_backend")
 @patch("s2t.popup_recorder.AudioRecorder")
-def test_start_recording(mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend):
+def test_start_recording(
+    mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend
+):
     """Test starting recording."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
     mock_get_backend.return_value = mock_backend
@@ -102,7 +100,9 @@ def test_start_recording(mock_audio_recorder_class, mock_get_backend, mock_confi
 
 @patch("s2t.popup_recorder.get_backend")
 @patch("s2t.popup_recorder.AudioRecorder")
-def test_stop_recording(mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend):
+def test_stop_recording(
+    mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend
+):
     """Test stopping recording."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
     mock_get_backend.return_value = mock_backend
@@ -119,7 +119,9 @@ def test_stop_recording(mock_audio_recorder_class, mock_get_backend, mock_config
 
 @patch("s2t.popup_recorder.get_backend")
 @patch("s2t.popup_recorder.AudioRecorder")
-def test_transcribe(mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend):
+def test_transcribe(
+    mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend
+):
     """Test transcription."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
     mock_get_backend.return_value = mock_backend

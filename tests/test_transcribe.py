@@ -3,37 +3,40 @@
 Tests for the transcription functionality.
 """
 
+import logging
 import os
 import sys
 import time
-import logging
-import tempfile
-import unittest
-from unittest.mock import MagicMock, patch
+
 from s2t.audio import AudioRecorder
 from s2t.backends import get_backend
-from s2t.config import load_config, DEFAULT_CONFIG_PATH
+from s2t.config import load_config
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
+
 def main():
-    """Test audio recording and transcription."""
+    """Main function for testing transcription."""
+    # Load configuration
+    config = load_config()
+
     # Check if API key is set
+    if not config["backends"]["whisper_api"]["api_key"]:
+        logger.warning("No API key found. Set OPENAI_API_KEY environment variable.")
+        logger.warning("Or edit the config file: ~/.config/s2t/config.yaml")
+        return
+
+    # Check if API key is in config
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         logger.warning("OPENAI_API_KEY environment variable is not set")
         logger.warning("You can set it with: export OPENAI_API_KEY='your-api-key'")
-        logger.warning("Or edit the config file: ~/.config/desktopstt/config.yaml")
+        logger.warning("Or edit the config file: ~/.config/s2t/config.yaml")
 
-    # Load configuration
-    config = load_config(DEFAULT_CONFIG_PATH)
-
-    # Check if API key is in config
     if not config["backends"]["whisper_api"]["api_key"] and not api_key:
         logger.error("No OpenAI API key found in config or environment variables")
         logger.error("Please set your API key and try again")
@@ -72,7 +75,7 @@ def main():
     logger.info("Transcribing audio...")
     try:
         result = backend.transcribe(audio_file)
-        text = result.get('text', '')
+        text = result.get("text", "")
 
         if not text:
             logger.error("No transcription result")
@@ -85,6 +88,7 @@ def main():
     except Exception as e:
         logger.error(f"Error transcribing audio: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

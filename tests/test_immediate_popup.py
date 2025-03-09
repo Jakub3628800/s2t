@@ -1,34 +1,60 @@
 #!/usr/bin/env python3
 """
-Tests for the immediate popup recorder implementation.
+Tests for the immediate popup recorder.
 """
 
-import os
 import sys
-import tempfile
+
 import pytest
-from unittest.mock import MagicMock, patch
+
+
+# Mock RecordingWindow class
+class MockRecordingWindow:
+    """Mock recording window for testing."""
+
+    def __init__(self, on_stop_callback=None, title="S2T Recording"):
+        """Initialize the mock recording window."""
+        self.on_stop_callback = on_stop_callback
+        self.title = title
+        self.presented = False
+
+    def present(self):
+        """Present the window."""
+        self.presented = True
+
+    def update_audio_level(self, level):
+        """Update the audio level."""
+        pass
+
+    def update_vad_status(self, is_speech, silence_duration=None):
+        """Update the VAD status."""
+        pass
+
 
 # Mock sys.argv before importing any modules
-sys.argv = ['test_immediate_popup']
+sys.argv = ["test_immediate_popup"]
 
-# Import the classes from the script
-# Note: This is a simplified version for testing purposes
-# In a real implementation, you would need to extract these classes to a module
+
+# Mock ImmediateRecordingWindow class
 class ImmediateRecordingWindow:
-    """Mock class for testing."""
-    def __init__(self, on_stop_callback=None, title="DesktopSTT Recording"):
+    """Mock immediate recording window for testing."""
+
+    def __init__(self, on_stop_callback=None, title="S2T Recording"):
+        """Initialize the mock immediate recording window."""
         self.on_stop_callback = on_stop_callback
         self.title = title
         self.vad_status_updated = False
+        self.is_speech = False
 
     def update_vad_status(self, is_speech):
+        """Update the VAD status."""
         self.vad_status_updated = True
         self.is_speech = is_speech
 
 
 class ImmediatePopupRecorder:
     """Mock class for testing."""
+
     def __init__(self, config):
         self.config = config
         self.window = None
@@ -47,18 +73,14 @@ def mock_config():
     """Return a mock configuration for testing."""
     return {
         "backends": {
-            "whisper_api": {
-                "api_key": "test_api_key",
-                "model": "whisper-1",
-                "language": "en"
-            }
+            "whisper_api": {"api_key": "test_api_key", "model": "whisper-1", "language": "en"}
         },
         "popup_recorder": {
             "vad_enabled": True,
             "silence_threshold": 0.05,
             "silence_duration": 3.0,
-            "min_recording_time": 0.0
-        }
+            "min_recording_time": 0.0,
+        },
     }
 
 
@@ -67,7 +89,7 @@ def test_immediate_recording_window():
     window = ImmediateRecordingWindow()
 
     # Check that the window initializes with speech status updated
-    assert hasattr(window, 'update_vad_status')
+    assert hasattr(window, "update_vad_status")
 
     # Test the update_vad_status method
     window.update_vad_status(True)

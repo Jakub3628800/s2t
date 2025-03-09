@@ -1,274 +1,241 @@
-# DesktopSTT User Guide
+# S2T User Guide
 
-This guide provides detailed instructions on how to install, configure, and use DesktopSTT, a desktop application for Linux that converts speech to text.
+This guide provides detailed instructions on how to install, configure, and use S2T, a desktop application for Linux that converts speech to text.
 
 ## Table of Contents
 
 1. [Introduction](#introduction)
 2. [Installation](#installation)
 3. [Configuration](#configuration)
-4. [Using the Popup Recorder](#using-the-popup-recorder)
-5. [Using the Headless Mode](#using-the-headless-mode)
+4. [Basic Usage](#basic-usage)
+5. [Advanced Usage](#advanced-usage)
 6. [Convenience Scripts](#convenience-scripts)
 7. [Troubleshooting](#troubleshooting)
 8. [FAQ](#faq)
 
 ## Introduction
 
-DesktopSTT is a lightweight desktop application that allows you to record audio from your microphone and convert it to text. It offers two main modes of operation:
+S2T is a lightweight desktop application that allows you to record audio from your microphone and convert it to text. It offers two main modes of operation:
 
-- **Popup Recorder**: A graphical window that provides visual feedback during recording
-- **Headless Mode**: A terminal-based version without any GUI, perfect for scripts and automation
+1. **Popup Recorder**: A graphical interface with a popup window that shows recording status and audio levels.
+2. **Headless Mode**: A command-line interface without any GUI, suitable for scripts and automation.
 
-Both modes use the same speech-to-text backend (currently OpenAI's Whisper API) to provide accurate transcriptions.
+Both modes use OpenAI's Whisper API for speech-to-text conversion, providing high-quality transcriptions.
 
 ## Installation
 
 ### Prerequisites
 
-- Linux operating system
 - Python 3.12 or higher
-- PulseAudio or PipeWire for audio capture
-- GTK 4 for the popup recorder (not needed for headless mode)
-- `wtype` for the convenience scripts (optional)
+- GTK 4 (for popup mode)
+- PyAudio
+- OpenAI API key
+- `wtype` (optional, for automatic typing of transcribed text)
 
-### Installation Steps
+### Install from Source
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/desktopstt.git
-   cd desktopstt
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/s2t.git
+cd s2t
 
-2. Create a virtual environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
 
-3. Install the package:
-   ```bash
-   pip install -e .
-   ```
-
-4. (Optional) Install the convenience scripts:
-   ```bash
-   ./install_scripts.sh
-   ```
+# Install the package
+pip install -e .
+```
 
 ## Configuration
 
-DesktopSTT requires an OpenAI API key to use the Whisper API for speech-to-text conversion. You can provide this key in one of three ways:
+### API Key Setup
 
-### Option 1: Config File
+S2T requires an OpenAI API key to use the Whisper API for speech-to-text conversion. You can provide this key in one of three ways:
 
-1. Create the default config if it doesn't exist:
-   ```bash
-   python -m desktopstt.config
-   ```
+#### Option 1: Edit the config file
+```bash
+# Create the default config if it doesn't exist
+python -m s2t.config
 
-2. Edit the config file:
-   ```bash
-   nano ~/.config/desktopstt/config.yaml
-   ```
+# Edit the config file
+nano ~/.config/s2t/config.yaml
+```
 
-3. Set your API key:
-   ```yaml
-   backends:
-     whisper_api:
-       api_key: 'your-api-key-here'
-   ```
+In the config file, set your API key:
+```yaml
+backends:
+  whisper_api:
+    api_key: 'your-api-key-here'
+```
 
-### Option 2: Environment Variable
-
-Set the `OPENAI_API_KEY` environment variable:
+#### Option 2: Set environment variable
 ```bash
 export OPENAI_API_KEY='your-api-key-here'
 ```
 
-### Option 3: .env File
-
+#### Option 3: Create a .env file
 Create a file named `.env` in the project root:
 ```
 OPENAI_API_KEY=your-api-key-here
 ```
 
-## Using the Popup Recorder
+### Customizing Behavior
+
+You can customize various aspects of S2T by editing the config file at `~/.config/s2t/config.yaml`. The following settings are available:
+
+- **Audio Settings**: Sample rate, channels, chunk size, etc.
+- **UI Settings**: Window size, theme, etc.
+- **Backend Settings**: API key, model, language, etc.
+- **Output Settings**: Format, save location, etc.
+- **VAD Settings**: Silence threshold, silence duration, etc.
+
+## Basic Usage
+
+### Popup Recorder
 
 The popup recorder provides a graphical interface for recording audio and converting it to text.
 
-### Basic Usage
-
-Run the popup recorder:
 ```bash
-desktopstt-popup
+s2t-popup
 ```
 
-Or using make:
+This will open a window with a "Recording" indicator and a "Stop Recording" button. Speak into your microphone, and the audio level meter will show your voice level. When you're done speaking, either:
+
+- Click the "Stop Recording" button
+- Close the window
+- Wait for the voice activity detection to detect silence (default: 5 seconds)
+
+The transcribed text will be printed to the terminal.
+
+### Silent Mode
+
+For a cleaner output with only the transcribed text:
+
 ```bash
-make run-popup
+s2t-popup --silent --silence-duration 3.0
 ```
 
-### Features
+### Fixed Duration Recording
 
-- **Recording Indicator**: A pulsing red circle indicates that recording is in progress
-- **Timer**: Shows the elapsed recording time
-- **Audio Level Meter**: Visualizes your voice level in real-time
-- **Voice Activity Detection (VAD)**: Automatically stops recording after detecting silence
-- **Stop Button**: Manually stop recording at any time
+To record for a fixed duration instead of using voice activity detection:
 
-### Command-Line Options
-
-- `--silent`: Output only the transcribed text (no logging)
-- `--time SECONDS`: Record for a specific duration (disables VAD)
-- `--no-vad`: Disable voice activity detection
-- `--silence-threshold THRESHOLD`: Set the threshold for silence detection (0.0-1.0, default: 0.1)
-- `--silence-duration SECONDS`: Set the duration of silence before stopping (default: 5.0)
-- `--min-recording-time SECONDS`: Set the minimum recording time before VAD kicks in (default: 3.0)
-- `--output FILE`: Save the transcription to a file
-
-### Examples
-
-Silent mode with 3 seconds silence duration:
 ```bash
-desktopstt-popup --silent --silence-duration 3.0
+s2t-popup --time 10 --no-vad
 ```
 
-Record for 10 seconds without VAD:
+### Disable Voice Activity Detection
+
+To disable voice activity detection completely:
+
 ```bash
-desktopstt-popup --time 10 --no-vad
+s2t-popup --no-vad
 ```
 
-Start recording immediately without waiting for speech:
+### Headless Mode
+
+The headless mode provides a terminal-based interface without any GUI.
+
 ```bash
-desktopstt-popup --no-vad
+s2t-silent
 ```
 
-## Using the Headless Mode
+This will record audio from your microphone for 5 seconds (by default) and then transcribe it. The transcribed text will be printed to the terminal.
 
-The headless mode provides a terminal-based interface without any GUI, perfect for scripts and automation.
+### Piping Output
 
-### Basic Usage
+You can pipe the output of the headless mode to other commands:
 
-Run the headless mode:
 ```bash
-desktopstt-silent
+s2t-silent | grep "important"
 ```
 
-Or using make:
+### Capturing Output
+
+You can capture the output in a variable:
+
 ```bash
-make run-silent
-```
-
-### Features
-
-- **Minimal Dependencies**: No GUI dependencies required
-- **Clean Output**: Only outputs the transcribed text
-- **Script-Friendly**: Perfect for use in shell scripts and automation
-
-### Examples
-
-Pipe the output to another command:
-```bash
-desktopstt-silent | grep "important"
-```
-
-Use in a shell script:
-```bash
-SPEECH=$(desktopstt-silent)
+SPEECH=$(s2t-silent)
 echo "You said: $SPEECH"
 ```
 
 ## Convenience Scripts
 
-The repository includes two convenience scripts that make it easier to use DesktopSTT from anywhere on your system.
+The repository includes two convenience scripts that make it easier to use S2T from anywhere on your system.
 
 ### Installation
 
-Using the installation script:
 ```bash
-./install_scripts.sh
+# Copy the scripts to your bin directory
+cp s2t-popup-silent.sh ~/bin/s2t-popup-silent
+cp s2t-silent.sh ~/bin/s2t-silent
+chmod +x ~/bin/s2t-popup-silent ~/bin/s2t-silent
+
+# Add ~/bin to your PATH if not already there
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc  # or ~/.zshrc
+source ~/.bashrc  # or ~/.zshrc
 ```
 
-Or manually:
+### Popup Script
+
 ```bash
-cp desktopstt-popup-silent.sh ~/bin/desktopstt-popup-silent
-cp desktopstt-silent.sh ~/bin/desktopstt-silent
-chmod +x ~/bin/desktopstt-popup-silent ~/bin/desktopstt-silent
+s2t-popup-silent
 ```
 
-### Usage
+This script will open a popup window that starts recording immediately. When you stop speaking, it will automatically type the transcribed text at your cursor position.
 
-Run the popup recorder with silent mode:
+### Silent Script
+
 ```bash
-desktopstt-popup-silent
+s2t-silent
 ```
 
-Run the headless mode:
-```bash
-desktopstt-silent
-```
-
-These scripts will:
-1. Run the appropriate command
-2. Suppress warnings and error messages
-3. Pipe the output to `wtype` to automatically type the transcribed text at your cursor position
+This script will record audio without showing a GUI and then type the transcribed text at your cursor position.
 
 ## Troubleshooting
 
-### Common Issues
+### No Audio Input
 
-#### No Audio Input
+If S2T is not detecting any audio input:
 
-If DesktopSTT is not detecting any audio input:
-
-1. Check if your microphone is working with other applications
-2. Make sure your microphone is not muted in your system settings
-3. Try running `pavucontrol` to check your PulseAudio settings
-
-#### API Key Issues
-
-If you're having issues with the OpenAI API key:
-
-1. Make sure your API key is correct and has not expired
-2. Check that you have sufficient credits in your OpenAI account
-3. Verify that the API key is set correctly in one of the three supported methods
-
-#### GTK Errors
-
-If you're seeing GTK-related errors when using the popup recorder:
-
-1. Make sure GTK 4 is installed on your system
-2. Try installing the required dependencies:
+1. Check that your microphone is connected and working
+2. Check that your microphone is not muted
+3. Try selecting a different audio input device:
    ```bash
-   sudo apt-get install python3-gi python3-gi-cairo gir1.2-gtk-4.0
+   s2t-popup --list-devices
+   s2t-popup --device-index 1  # Use the index from the list
    ```
 
-### Debugging
+### API Key Issues
+
+If you're having issues with the API key:
+
+1. Check that your API key is correct
+2. Check that your API key has access to the Whisper API
+3. Check your internet connection
+
+### Debug Mode
 
 To enable debug logging:
+
 ```bash
-export DESKTOPSTT_DEBUG=1
+export S2T_DEBUG=1
 ```
 
 ## FAQ
 
-### Q: Does DesktopSTT work offline?
+### Q: Does S2T work offline?
 
-A: Currently, DesktopSTT requires an internet connection as it uses OpenAI's Whisper API for speech-to-text conversion. Support for offline models may be added in the future.
+A: Currently, S2T requires an internet connection as it uses OpenAI's Whisper API for speech-to-text conversion. Support for offline models may be added in the future.
 
-### Q: Can I use DesktopSTT on Windows or macOS?
+### Q: Can I use S2T on Windows or macOS?
 
-A: DesktopSTT is designed for Linux systems. While it may work on macOS with some modifications, Windows support is not currently available.
+A: S2T is designed for Linux systems. While it may work on macOS with some modifications, Windows support is not currently available.
 
-### Q: How accurate is the speech recognition?
+### Q: How accurate is the transcription?
 
-A: DesktopSTT uses OpenAI's Whisper API, which is one of the most accurate speech recognition systems available. However, accuracy can vary depending on factors such as audio quality, background noise, and accent.
+A: S2T uses OpenAI's Whisper API, which is one of the most accurate speech recognition systems available. However, accuracy can vary depending on factors such as audio quality, background noise, accent, and language.
 
-### Q: Is there a limit to how long I can record?
+### Q: Can I customize keyboard shortcuts?
 
-A: There is no built-in limit to recording duration, but longer recordings will take more time to transcribe and may incur higher API costs. The Whisper API has its own limitations on file size and duration.
-
-### Q: Can I customize the keyboard shortcuts?
-
-A: Currently, DesktopSTT does not support customizable keyboard shortcuts. This feature may be added in future versions.
+A: Currently, S2T does not support customizable keyboard shortcuts. This feature may be added in future versions.

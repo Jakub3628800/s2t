@@ -8,9 +8,10 @@ import sys
 import unittest
 
 # Add the parent directory to the path so we can import the package
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the config module directly
+
 
 class TestVAD(unittest.TestCase):
     """Test the VAD functionality."""
@@ -19,18 +20,18 @@ class TestVAD(unittest.TestCase):
         """Test that VAD configuration is processed correctly."""
         # Create a mock config with VAD settings
         config = {
-            'audio': {
-                'sample_rate': 16000,
-                'channels': 1,
-                'chunk_size': 1024,
-                'device_index': None
+            "audio": {
+                "sample_rate": 16000,
+                "channels": 1,
+                "chunk_size": 1024,
+                "device_index": None,
             },
-            'popup_recorder': {
-                'vad_enabled': True,
-                'silence_threshold': 0.2,
-                'silence_duration': 3.0,
-                'min_recording_time': 2.0
-            }
+            "popup_recorder": {
+                "vad_enabled": True,
+                "silence_threshold": 0.2,
+                "silence_duration": 3.0,
+                "min_recording_time": 2.0,
+            },
         }
 
         # Create a mock recorder class
@@ -43,12 +44,12 @@ class TestVAD(unittest.TestCase):
 
             def process_vad_config(self, config):
                 """Process VAD configuration."""
-                if 'popup_recorder' in config:
-                    popup_config = config['popup_recorder']
-                    self.vad_enabled = popup_config.get('vad_enabled', False)
-                    self.silence_threshold = popup_config.get('silence_threshold', 0.1)
-                    self.silence_duration = popup_config.get('silence_duration', 2.0)
-                    self.min_recording_time = popup_config.get('min_recording_time', 1.0)
+                if "popup_recorder" in config:
+                    popup_config = config["popup_recorder"]
+                    self.vad_enabled = popup_config.get("vad_enabled", False)
+                    self.silence_threshold = popup_config.get("silence_threshold", 0.1)
+                    self.silence_duration = popup_config.get("silence_duration", 2.0)
+                    self.min_recording_time = popup_config.get("min_recording_time", 1.0)
 
         # Create an instance of our mock recorder
         recorder = MockRecorder()
@@ -66,12 +67,7 @@ class TestVAD(unittest.TestCase):
         """Test that default VAD values are used when not specified."""
         # Create a config without VAD settings
         config = {
-            'audio': {
-                'sample_rate': 16000,
-                'channels': 1,
-                'chunk_size': 1024,
-                'device_index': None
-            }
+            "audio": {"sample_rate": 16000, "channels": 1, "chunk_size": 1024, "device_index": None}
         }
 
         # Create a mock recorder class
@@ -84,12 +80,12 @@ class TestVAD(unittest.TestCase):
 
             def process_vad_config(self, config):
                 """Process VAD configuration."""
-                if 'popup_recorder' in config:
-                    popup_config = config['popup_recorder']
-                    self.vad_enabled = popup_config.get('vad_enabled', False)
-                    self.silence_threshold = popup_config.get('silence_threshold', 0.1)
-                    self.silence_duration = popup_config.get('silence_duration', 2.0)
-                    self.min_recording_time = popup_config.get('min_recording_time', 1.0)
+                if "popup_recorder" in config:
+                    popup_config = config["popup_recorder"]
+                    self.vad_enabled = popup_config.get("vad_enabled", False)
+                    self.silence_threshold = popup_config.get("silence_threshold", 0.1)
+                    self.silence_duration = popup_config.get("silence_duration", 2.0)
+                    self.min_recording_time = popup_config.get("min_recording_time", 1.0)
                 else:
                     # Use default values
                     self.vad_enabled = False
@@ -108,6 +104,7 @@ class TestVAD(unittest.TestCase):
         self.assertEqual(recorder.silence_threshold, 0.1)
         self.assertEqual(recorder.silence_duration, 2.0)
         self.assertEqual(recorder.min_recording_time, 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()

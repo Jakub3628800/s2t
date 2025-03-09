@@ -5,16 +5,17 @@ Immediate popup recorder for S2T.
 This module provides a popup recorder that starts recording immediately when launched.
 """
 
+import argparse
+import logging
 import os
 import sys
-import argparse
 import tempfile
-import logging
+
 import gi
+
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GLib
+from s2t.config import DEFAULT_CONFIG_PATH, load_config
 from s2t.popup_recorder import PopupRecorder, RecordingWindow
-from s2t.config import load_config, DEFAULT_CONFIG_PATH
 from s2t.utils import load_dotenv
 
 # Set up logging
@@ -36,8 +37,7 @@ class ImmediatePopupRecorder(PopupRecorder):
     def _show_window(self):
         """Show the recording window."""
         self.window = ImmediateRecordingWindow(
-            on_stop_callback=self._on_window_stop,
-            title="S2T Immediate Recording"
+            on_stop_callback=self._on_window_stop, title="S2T Immediate Recording"
         )
         self.window.present()
         return self.window
@@ -46,14 +46,28 @@ class ImmediatePopupRecorder(PopupRecorder):
 def main():
     """Command-line entry point."""
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Immediate recording popup recorder')
-    parser.add_argument('--output', type=str, help='Output file for transcription')
-    parser.add_argument('--silence-threshold', type=float, default=0.05, help='Threshold for silence detection (0.0-1.0)')
-    parser.add_argument('--silence-duration', type=float, default=3.0, help='Duration of silence before stopping (seconds)')
-    parser.add_argument('--env-file', type=str, default='.env', help='Path to .env file (default: .env)')
-    parser.add_argument('--wtype', action='store_true', help='Output transcription using wtype')
-    parser.add_argument('--debug', action='store_true', help='Enable debug logging')
-    parser.add_argument('--silent', action='store_true', help='Suppress all output except the transcription')
+    parser = argparse.ArgumentParser(description="Immediate recording popup recorder")
+    parser.add_argument("--output", type=str, help="Output file for transcription")
+    parser.add_argument(
+        "--silence-threshold",
+        type=float,
+        default=0.05,
+        help="Threshold for silence detection (0.0-1.0)",
+    )
+    parser.add_argument(
+        "--silence-duration",
+        type=float,
+        default=3.0,
+        help="Duration of silence before stopping (seconds)",
+    )
+    parser.add_argument(
+        "--env-file", type=str, default=".env", help="Path to .env file (default: .env)"
+    )
+    parser.add_argument("--wtype", action="store_true", help="Output transcription using wtype")
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument(
+        "--silent", action="store_true", help="Suppress all output except the transcription"
+    )
     args = parser.parse_args()
 
     # Set up logging
@@ -64,8 +78,8 @@ def main():
     # Configure logging to stderr instead of stdout
     logging.basicConfig(
         level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        stream=sys.stderr
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        stream=sys.stderr,
     )
 
     # Load environment variables from .env file
@@ -104,13 +118,14 @@ def main():
 
         if args.wtype:
             # Create a temporary file for wtype
-            with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+            with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
                 temp_file.write(text + "\n")
                 temp_output = temp_file.name
 
             # Use wtype to type the transcription
             try:
                 import subprocess
+
                 subprocess.run(["wtype", "-"], input=f"{text}\n".encode(), check=True)
                 logger.info("Transcription typed using wtype")
             except Exception as e:
@@ -120,7 +135,7 @@ def main():
                 os.unlink(temp_output)
         elif args.output:
             # Write to output file
-            with open(args.output, 'w') as f:
+            with open(args.output, "w") as f:
                 f.write(text + "\n")  # Add newline at the end
             logger.info(f"Transcription saved to {args.output}")
         return 0

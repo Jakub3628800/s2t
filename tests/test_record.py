@@ -3,22 +3,19 @@
 Tests for the audio recording functionality.
 """
 
+import logging
 import sys
 import time
-import logging
-import os
-import tempfile
-import unittest
-from unittest.mock import MagicMock, patch
+
 from s2t.audio import AudioRecorder
-from s2t.config import load_config, DEFAULT_CONFIG_PATH
+from s2t.config import DEFAULT_CONFIG_PATH, load_config
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 def main():
     """Test audio recording."""
@@ -49,6 +46,7 @@ def main():
     logger.info(f"Saved recording to {audio_file}")
     logger.info(f"You can play it with: aplay {audio_file}")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

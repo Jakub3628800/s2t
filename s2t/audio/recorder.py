@@ -1,5 +1,5 @@
 """
-Audio recording functionality for DesktopSTT.
+Audio recording functionality for S2T.
 """
 
 import logging
@@ -112,7 +112,7 @@ class AudioRecorder:
             # Create a temporary file
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             temp_dir = tempfile.gettempdir()
-            temp_path = os.path.join(temp_dir, f"desktopstt_recording_{timestamp}.wav")
+            temp_path = os.path.join(temp_dir, f"s2t_recording_{timestamp}.wav")
 
             # Save the audio data to the temporary file
             with wave.open(temp_path, "wb") as wf:

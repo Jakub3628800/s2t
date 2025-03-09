@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Truly silent command-line interface for DesktopSTT.
-This version suppresses all warnings and outputs only the transcribed text.
+Truly silent recorder for S2T.
+
+This module provides a recorder that runs without any GUI or notifications.
 """
 
 import argparse
@@ -15,12 +16,16 @@ import warnings
 
 # Suppress all warnings
 warnings.filterwarnings("ignore")
-os.environ["PYTHONWARNINGS"] = "ignore"
 
 # Disable logging
 logging.disable(logging.CRITICAL)
 
-# Import after disabling warnings and logging
+# Import gi and set the required version
+import gi
+
+gi.require_version("Gtk", "4.0")
+
+# Import our modules
 from s2t.audio import AudioRecorder
 from s2t.backends import get_backend
 from s2t.config import DEFAULT_CONFIG_PATH, load_config
@@ -28,7 +33,7 @@ from s2t.utils import load_dotenv
 
 
 class TrulySilentRecorder:
-    """Truly silent recorder that suppresses all output except the transcription."""
+    """Records audio and transcribes it without any GUI or notifications."""
 
     def __init__(self, config):
         """Initialize the recorder with the given configuration."""
@@ -127,7 +132,29 @@ class TrulySilentRecorder:
 
 
 def main():
-    """Command-line entry point."""
+    """Main entry point for the truly silent recorder."""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="S2T Truly Silent CLI")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=DEFAULT_CONFIG_PATH,
+        help=f"Path to config file (default: {DEFAULT_CONFIG_PATH})",
+    )
+    parser.add_argument("--output", type=str, help="Output file path (default: stdout)")
+    parser.add_argument(
+        "--time",
+        type=float,
+        help="Record for specified number of seconds and then stop",
+    )
+    parser.add_argument(
+        "--env-file",
+        type=str,
+        default=".env",
+        help="Path to .env file containing API key (default: .env)",
+    )
+    args = parser.parse_args()
+
     # Redirect stderr to /dev/null to suppress ALSA warnings
     stderr_fd = os.dup(2)
     devnull = os.open(os.devnull, os.O_WRONLY)
@@ -135,27 +162,6 @@ def main():
     os.close(devnull)
 
     try:
-        parser = argparse.ArgumentParser(description="DesktopSTT Truly Silent CLI")
-        parser.add_argument(
-            "--config",
-            type=str,
-            default=DEFAULT_CONFIG_PATH,
-            help=f"Path to config file (default: {DEFAULT_CONFIG_PATH})",
-        )
-        parser.add_argument("--output", type=str, help="Output file path (default: stdout)")
-        parser.add_argument(
-            "--time",
-            type=float,
-            help="Record for specified number of seconds and then stop",
-        )
-        parser.add_argument(
-            "--env-file",
-            type=str,
-            default=".env",
-            help="Path to .env file containing API key (default: .env)",
-        )
-        args = parser.parse_args()
-
         # Load environment variables from .env file
         load_dotenv(args.env_file)
 

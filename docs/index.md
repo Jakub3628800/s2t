@@ -36,8 +36,8 @@ S2T is a desktop application for Linux that records speech and converts it to te
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/desktopstt.git
-cd desktopstt
+git clone https://github.com/yourusername/s2t.git
+cd s2t
 
 # Create a virtual environment
 python -m venv .venv
@@ -52,13 +52,13 @@ pip install -e .
 ### Popup Recorder
 
 ```bash
-desktopstt-popup
+s2t-popup
 ```
 
 ### Headless Mode
 
 ```bash
-desktopstt-silent
+s2t-silent
 ```
 
 ## License

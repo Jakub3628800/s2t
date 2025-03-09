@@ -10,16 +10,15 @@ import logging
 import os
 import signal
 import sys
-import tempfile
 import threading
 import time
-from typing import Dict, Optional, Union
 
 # Import gi and set the required versions
 import gi
+
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk, Adw, GLib, Gdk, GObject
+from gi.repository import GLib, Gtk
 
 # Import our modules
 from s2t.audio import AudioRecorder  # noqa: E402
