@@ -1,137 +1,123 @@
-# DesktopSTT Quick Start Guide
+# Quick Start Guide
 
-This guide will help you get started with DesktopSTT quickly.
+This guide will help you get started with S2T quickly.
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/desktopstt.git
-   cd desktopstt
-   ```
+### Prerequisites
 
-2. Create a virtual environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
+- Python 3.12 or higher
+- GTK 4 (for popup mode)
+- PyAudio
+- OpenAI API key
+- `wtype` (for automatic typing of transcribed text)
 
-3. Install the package:
-   ```bash
-   pip install -e .
-   ```
+### Install from Source
 
-4. Set up your OpenAI API key:
-   ```bash
-   echo "OPENAI_API_KEY=your-api-key-here" > .env
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/s2t.git
+cd s2t
 
-## Using the Popup Recorder
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install the package
+pip install -e .
+```
+
+## API Key Setup
+
+To use the Whisper API backend, you need to set your OpenAI API key:
+
+### Option 1: Edit the config file
+```bash
+# Create the default config if it doesn't exist
+python -m s2t.config
+
+# Edit the config file
+nano ~/.config/s2t/config.yaml
+```
+
+In the config file, set your API key:
+```yaml
+backends:
+  whisper_api:
+    api_key: 'your-api-key-here'
+```
+
+### Option 2: Set environment variable
+```bash
+export OPENAI_API_KEY='your-api-key-here'
+```
+
+### Option 3: Create a .env file
+Create a file named `.env` in the project root:
+```
+OPENAI_API_KEY=your-api-key-here
+```
+
+## Basic Usage
+
+### Popup Recorder
 
 The popup recorder provides a graphical interface for recording audio and converting it to text.
 
-### Basic Usage
-
-1. Run the popup recorder:
-   ```bash
-   desktopstt-popup
-   ```
-
-2. A window will appear with a "Recording" indicator and a "Stop Recording" button.
-
-3. Speak into your microphone. The audio level meter will show your voice level.
-
-4. When you're done speaking, either:
-   - Click the "Stop Recording" button
-   - Close the window
-   - Wait for the voice activity detection to detect silence (default: 5 seconds)
-
-5. The transcribed text will be printed to the terminal.
-
-### Silent Mode
-
-For a cleaner output with only the transcribed text:
-
 ```bash
-desktopstt-popup --silent
+# Standard popup recorder with voice activity detection
+s2t-popup
+
+# Immediate popup recorder (starts recording immediately)
+s2t-immediate
 ```
 
-### Custom Silence Duration
+### Headless Recorder
 
-To change how long the recorder waits for silence before stopping:
-
-```bash
-desktopstt-popup --silence-duration 3.0
-```
-
-### Disable Voice Activity Detection
-
-To record for a fixed duration instead of using voice activity detection:
+The headless recorder runs without a GUI, making it suitable for scripts and automation.
 
 ```bash
-desktopstt-popup --time 10 --no-vad
+# Headless recorder with notifications
+s2t-headless
+
+# Truly silent recorder (no GUI, no notifications)
+s2t-silent
 ```
 
-## Using the Headless Mode
+### Convenience Scripts
 
-The headless mode provides a terminal-based interface without any GUI.
-
-### Basic Usage
-
-1. Run the headless mode:
-   ```bash
-   desktopstt-silent
-   ```
-
-2. Speak into your microphone. The recording will stop after 5 seconds by default.
-
-3. The transcribed text will be printed to the terminal.
-
-### Custom Duration
-
-To change the recording duration:
+The repository includes two convenience scripts that can be used directly or installed to your PATH:
 
 ```bash
-desktopstt-silent --time 10
+# Copy the scripts to your bin directory
+cp s2t-popup-silent.sh ~/bin/s2t-popup-silent
+cp s2t-silent.sh ~/bin/s2t-silent
+chmod +x ~/bin/s2t-popup-silent ~/bin/s2t-silent
+
+# Add ~/bin to your PATH if not already there
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc  # or ~/.zshrc
+source ~/.bashrc  # or ~/.zshrc
 ```
 
-### Save to File
+## Configuration Options
 
-To save the transcription to a file:
+### Silence Detection
 
+You can customize the silence detection parameters:
+
+- `silence_threshold`: Threshold for silence detection (0.0-1.0, default: 0.1)
+- `silence_duration`: Duration of silence before stopping (seconds, default: 5.0)
+
+Example:
 ```bash
-desktopstt-silent --output transcription.txt
+s2t-popup --silence-threshold 0.05 --silence-duration 3.0
 ```
 
-## Using the Convenience Scripts
-
-The repository includes two convenience scripts that make it easier to use DesktopSTT from anywhere on your system.
-
-### Installation
-
+Or in the convenience script:
 ```bash
-./install_scripts.sh
+./s2t-popup-silent.sh  # Uses 0.05 threshold and 3.0 seconds by default
 ```
-
-### Usage
-
-1. Position your cursor where you want the text to be inserted.
-
-2. Run one of the convenience scripts:
-   ```bash
-   desktopstt-popup-silent
-   ```
-   or
-   ```bash
-   desktopstt-silent
-   ```
-
-3. Speak into your microphone.
-
-4. The transcribed text will be automatically typed at your cursor position.
 
 ## Next Steps
 
-- Read the [User Guide](user_guide.md) for more detailed information
-- Check out the [API Reference](api_reference.md) if you want to use DesktopSTT programmatically
-- See the [Developer Guide](developer_guide.md) if you want to contribute to the project
+For more detailed information, see the [User Guide](user_guide.md) and [API Reference](api_reference.md).

@@ -1,9 +1,9 @@
 """
-Speech-to-text backend interfaces for DesktopSTT.
+Speech-to-text backend interfaces for S2T.
 """
 
-from desktopstt.backends.base import STTBackend
-from desktopstt.backends.whisper_api import WhisperAPIBackend
+from s2t.backends.base import STTBackend
+from s2t.backends.whisper_api import WhisperAPIBackend
 
 __all__ = ["STTBackend", "WhisperAPIBackend", "get_backend"]
 

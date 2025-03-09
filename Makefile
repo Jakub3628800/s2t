@@ -18,7 +18,7 @@ venv:
 
 install-venv: venv
 	$(VENV_DIR)/bin/uv pip install -e .
-	@echo "DesktopSTT installed in development mode in virtual environment"
+	@echo "S2T installed in development mode in virtual environment"
 
 # Clean targets
 clean:
@@ -35,7 +35,7 @@ test:
 	$(PYTHON) -m pytest tests/
 
 test-coverage:
-	$(PYTHON) -m pytest --cov=desktopstt tests/
+	$(PYTHON) -m pytest --cov=s2t tests/
 
 # Build targets
 build:
@@ -43,30 +43,30 @@ build:
 
 # Run targets
 run-popup:
-	$(PYTHON) -m desktopstt.popup_recorder
+	$(PYTHON) -m s2t.popup_recorder
 
 run-popup-silent:
-	PYTHONWARNINGS=ignore $(PYTHON) -m desktopstt.popup_recorder --silent --silence-duration 3.0 2>/dev/null
+	PYTHONWARNINGS=ignore $(PYTHON) -m s2t.popup_recorder --silent --silence-duration 3.0 2>/dev/null
 
 run-popup-immediate:
-	$(PYTHON) -m desktopstt.immediate_popup
+	$(PYTHON) -m s2t.immediate_popup
 
 run-headless:
-	$(PYTHON) -m desktopstt.headless_recorder
+	$(PYTHON) -m s2t.headless_recorder
 
 run-silent:
-	$(PYTHON) -m desktopstt.truly_silent
+	$(PYTHON) -m s2t.truly_silent
 
 # Script targets
 run-script-popup:
-	./desktopstt-popup-silent.sh
+	./s2t-popup-silent.sh
 
 run-script-silent:
-	./desktopstt-silent.sh
+	./s2t-silent.sh
 
 # Help target
 help:
-	@echo "DesktopSTT Makefile"
+	@echo "S2T Makefile"
 	@echo ""
 	@echo "Targets:"
 	@echo "  install         Install the package using UV"

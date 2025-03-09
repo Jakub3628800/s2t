@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for the popup_recorder module.
+Tests for the popup recorder module.
 """
 
 import os
@@ -13,7 +13,11 @@ from gi.repository import GLib
 # Mock sys.argv before importing popup_recorder
 sys.argv = ['popup_recorder']
 
-from desktopstt.popup_recorder import PopupRecorder, RecordingWindow, AudioLevelBar
+import gi
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk
+
+from s2t.popup_recorder import PopupRecorder, RecordingWindow, AudioLevelBar
 
 
 @pytest.fixture
@@ -59,8 +63,8 @@ def mock_audio_recorder():
     return recorder
 
 
-@patch("desktopstt.popup_recorder.get_backend")
-@patch("desktopstt.popup_recorder.AudioRecorder")
+@patch("s2t.popup_recorder.get_backend")
+@patch("s2t.popup_recorder.AudioRecorder")
 def test_popup_recorder_init(mock_audio_recorder_class, mock_get_backend, mock_config):
     """Test PopupRecorder initialization."""
     mock_audio_recorder_class.return_value = MagicMock()
@@ -76,8 +80,8 @@ def test_popup_recorder_init(mock_audio_recorder_class, mock_get_backend, mock_c
     assert recorder.window is None
 
 
-@patch("desktopstt.popup_recorder.get_backend")
-@patch("desktopstt.popup_recorder.AudioRecorder")
+@patch("s2t.popup_recorder.get_backend")
+@patch("s2t.popup_recorder.AudioRecorder")
 def test_start_recording(mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend):
     """Test starting recording."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
@@ -96,8 +100,8 @@ def test_start_recording(mock_audio_recorder_class, mock_get_backend, mock_confi
     assert recorder._show_window.called
 
 
-@patch("desktopstt.popup_recorder.get_backend")
-@patch("desktopstt.popup_recorder.AudioRecorder")
+@patch("s2t.popup_recorder.get_backend")
+@patch("s2t.popup_recorder.AudioRecorder")
 def test_stop_recording(mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend):
     """Test stopping recording."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
@@ -113,8 +117,8 @@ def test_stop_recording(mock_audio_recorder_class, mock_get_backend, mock_config
     assert audio_file == mock_audio_recorder.stop_recording.return_value
 
 
-@patch("desktopstt.popup_recorder.get_backend")
-@patch("desktopstt.popup_recorder.AudioRecorder")
+@patch("s2t.popup_recorder.get_backend")
+@patch("s2t.popup_recorder.AudioRecorder")
 def test_transcribe(mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend):
     """Test transcription."""
     mock_audio_recorder_class.return_value = mock_audio_recorder

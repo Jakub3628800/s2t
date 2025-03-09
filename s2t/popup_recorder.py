@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Popup recorder for DesktopSTT.
-Shows a window during recording with a stop button and recording indicator.
+Popup recorder for S2T.
+
+This module provides a graphical popup window for recording with visual feedback.
 """
 
 import argparse
@@ -9,21 +10,22 @@ import logging
 import os
 import signal
 import sys
+import tempfile
 import threading
 import time
+from typing import Dict, Optional, Union
 
+# Import gi and set the required versions
 import gi
-import numpy as np
-
-# Import gi modules first
 gi.require_version("Gtk", "4.0")
-# Import all modules at the top
-from gi.repository import GLib, Gtk  # noqa: E402
+gi.require_version("Adw", "1")
+from gi.repository import Gtk, Adw, GLib, Gdk, GObject
 
-from desktopstt.audio import AudioRecorder  # noqa: E402
-from desktopstt.backends import get_backend  # noqa: E402
-from desktopstt.config import DEFAULT_CONFIG_PATH, load_config  # noqa: E402
-from desktopstt.utils import load_dotenv  # noqa: E402
+# Import our modules
+from s2t.audio import AudioRecorder  # noqa: E402
+from s2t.backends import get_backend  # noqa: E402
+from s2t.config import DEFAULT_CONFIG_PATH, load_config  # noqa: E402
+from s2t.utils import load_dotenv  # noqa: E402
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description="Record audio and transcribe it with a popup window.")
@@ -151,9 +153,9 @@ class AudioLevelBar(Gtk.DrawingArea):
 
 
 class RecordingWindow(Gtk.Window):
-    """Recording window with stop button and recording indicator."""
+    """Window for recording audio with visual feedback."""
 
-    def __init__(self, on_stop_callback=None, title="DesktopSTT Recording"):
+    def __init__(self, on_stop_callback=None, title="S2T Recording"):
         """Initialize the recording window."""
         super().__init__(title=title)
 

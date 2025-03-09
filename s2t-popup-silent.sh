@@ -23,48 +23,54 @@ fi
 # Check for wtype availability
 if ! command -v wtype >/dev/null 2>&1; then
     echo "Error: wtype is not installed or not in PATH. Please install wtype."
+    notify-send -u critical "S2T Error" "wtype is not installed or not in PATH. Please install wtype."
     exit 1
 fi
 
-# Path to the desktopstt repository
-DESKTOPSTT_PATH="$HOME/repos/desktopstt"
+# Path to the s2t repository
+S2T_PATH="$HOME/repos/s2t"
 
-# Change to the desktopstt directory
-cd "$DESKTOPSTT_PATH" || { echo "Error: Could not find desktopstt repository at $DESKTOPSTT_PATH"; exit 1; }
+# Change to the s2t directory
+cd "$S2T_PATH" || {
+    echo "Error: Could not find s2t repository at $S2T_PATH"
+    notify-send -u critical "S2T Error" "Could not find s2t repository at $S2T_PATH"
+    exit 1
+}
 
 # Ensure Python virtual environment is activated
-if [ -d "$DESKTOPSTT_PATH/.venv" ] && [ -z "$VIRTUAL_ENV" ]; then
-    . "$DESKTOPSTT_PATH/.venv/bin/activate"
+if [ -d "$S2T_PATH/.venv" ] && [ -z "$VIRTUAL_ENV" ]; then
+    . "$S2T_PATH/.venv/bin/activate"
 fi
 
 # Load OpenAI API key from .env file
-if [ -f "$DESKTOPSTT_PATH/.env" ]; then
+if [ -f "$S2T_PATH/.env" ]; then
     # Export environment variables from .env file
-    export "$(grep -v '^#' "$DESKTOPSTT_PATH/.env" | xargs)"
+    export "$(grep -v '^#' "$S2T_PATH/.env" | xargs)"
     echo "Loaded API key from .env file"
 else
-    echo "Error: .env file not found at $DESKTOPSTT_PATH/.env"
+    echo "Error: .env file not found at $S2T_PATH/.env"
+    notify-send -u critical "S2T Error" ".env file not found at $S2T_PATH/.env"
     exit 1
 fi
 
 # Create a log file for debugging
-LOG_FILE="/tmp/desktopstt-popup-debug.log"
-echo "Starting desktopstt-popup-silent.sh at $(date)" > "$LOG_FILE"
+LOG_FILE="/tmp/s2t-popup-silent-debug.log"
+echo "Starting s2t-popup-silent.sh at $(date)" > "$LOG_FILE"
 echo "Working directory: $(pwd)" >> "$LOG_FILE"
-echo "Python path: $("$DESKTOPSTT_PATH/.venv/bin/python" -c 'import sys; print(sys.path)')" >> "$LOG_FILE"
+echo "Python path: $("$S2T_PATH/.venv/bin/python" -c 'import sys; print(sys.path)')" >> "$LOG_FILE"
 echo "API key loaded: ${OPENAI_API_KEY:0:5}..." >> "$LOG_FILE"
 
 # Create a temporary file to capture the output
 OUTPUT_FILE=$(mktemp)
 
 # Run the immediate popup recorder and capture its output
-PYTHONWARNINGS=ignore "$DESKTOPSTT_PATH/.venv/bin/python" -m desktopstt.immediate_popup --silence-threshold 0.05 --silence-duration 3.0 --debug > "$OUTPUT_FILE" 2>> "$LOG_FILE"
+PYTHONWARNINGS=ignore "$S2T_PATH/.venv/bin/python" -m s2t.immediate_popup --silence-threshold 0.05 --silence-duration 3.0 --debug > "$OUTPUT_FILE" 2>> "$LOG_FILE"
 PYTHON_EXIT_CODE=$?
 
 # Check if the Python script exited successfully
 if [ $PYTHON_EXIT_CODE -ne 0 ]; then
     echo "Error: Python script exited with code $PYTHON_EXIT_CODE" >> "$LOG_FILE"
-    notify-send -u critical "DesktopSTT Error" "Failed to transcribe audio. Check the log at $LOG_FILE"
+    notify-send -u critical "S2T Error" "Failed to transcribe audio. Check the log at $LOG_FILE"
     rm "$OUTPUT_FILE"
     exit $PYTHON_EXIT_CODE
 fi
@@ -73,7 +79,7 @@ fi
 if [ -s "$OUTPUT_FILE" ]; then
     # Look for the special markers in the output
     TRANSCRIPTION=$(grep -o "TRANSCRIPTION_START:.*:TRANSCRIPTION_END" "$OUTPUT_FILE" | sed 's/TRANSCRIPTION_START:\(.*\):TRANSCRIPTION_END/\1/')
-    
+
     if [ -n "$TRANSCRIPTION" ]; then
         echo "Found transcription with markers: $TRANSCRIPTION" >> "$LOG_FILE"
     else
@@ -84,14 +90,14 @@ if [ -s "$OUTPUT_FILE" ]; then
 else
     # If no output, try to extract from the log file
     TRANSCRIPTION_LINE=$(grep -o "TRANSCRIPTION_START:.*:TRANSCRIPTION_END" "$LOG_FILE" | sed 's/TRANSCRIPTION_START:\(.*\):TRANSCRIPTION_END/\1/')
-    
+
     if [ -n "$TRANSCRIPTION_LINE" ]; then
         TRANSCRIPTION="$TRANSCRIPTION_LINE"
         echo "Extracted transcription from log: $TRANSCRIPTION" >> "$LOG_FILE"
     else
         # Try another approach - look for the text between "text" and "language" in the JSON response
         TRANSCRIPTION_LINE=$(grep -o '"text": "[^"]*"' "$LOG_FILE" | head -n 1 | sed 's/"text": "\(.*\)"/\1/')
-        
+
         if [ -n "$TRANSCRIPTION_LINE" ]; then
             TRANSCRIPTION="$TRANSCRIPTION_LINE"
             echo "Extracted transcription from JSON in log: $TRANSCRIPTION" >> "$LOG_FILE"
@@ -111,7 +117,7 @@ if [ -n "$TRANSCRIPTION" ] && [ "$TRANSCRIPTION" != "0 characters" ]; then
     echo "$TRANSCRIPTION" | wtype -
 else
     echo "No transcription found or empty transcription" >> "$LOG_FILE"
-    notify-send "DesktopSTT" "No speech detected or transcription was empty"
+    notify-send "S2T" "No speech detected or transcription was empty"
 fi
 
 # Check the exit code

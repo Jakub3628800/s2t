@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """
-Simple script to test audio recording and transcription.
+Tests for the transcription functionality.
 """
 
 import os
 import sys
 import time
 import logging
-from desktopstt.audio import AudioRecorder
-from desktopstt.backends import get_backend
-from desktopstt.config import load_config, DEFAULT_CONFIG_PATH
+import tempfile
+import unittest
+from unittest.mock import MagicMock, patch
+from s2t.audio import AudioRecorder
+from s2t.backends import get_backend
+from s2t.config import load_config, DEFAULT_CONFIG_PATH
 
 # Set up logging
 logging.basicConfig(

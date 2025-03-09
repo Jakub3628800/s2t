@@ -1,13 +1,14 @@
 """
-OpenAI Whisper API backend for speech-to-text conversion.
+OpenAI Whisper API backend for S2T.
 """
 
 import logging
 import os
+import tempfile
 
 import openai
 
-from desktopstt.backends.base import STTBackend
+from s2t.backends.base import STTBackend
 
 logger = logging.getLogger(__name__)
 

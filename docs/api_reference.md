@@ -1,6 +1,6 @@
-# DesktopSTT API Reference
+# S2T API Reference
 
-This document provides detailed information about the public API of DesktopSTT.
+This document provides detailed information about the public API of S2T.
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ The audio module provides functionality for recording audio from the microphone.
 ### `AudioRecorder`
 
 ```python
-from desktopstt.audio import AudioRecorder
+from s2t.audio import AudioRecorder
 ```
 
 #### Constructor
@@ -70,7 +70,7 @@ The backends module provides interfaces for speech-to-text services.
 ### `get_backend`
 
 ```python
-from desktopstt.backends import get_backend
+from s2t.backends import get_backend
 ```
 
 ```python
@@ -85,7 +85,7 @@ Gets the appropriate speech-to-text backend based on the configuration.
 ### `STTBackend`
 
 ```python
-from desktopstt.backends.base import STTBackend
+from s2t.backends.base import STTBackend
 ```
 
 Abstract base class for speech-to-text backends.
@@ -116,7 +116,7 @@ Transcribes the given audio file to text.
 ### `WhisperAPIBackend`
 
 ```python
-from desktopstt.backends.whisper_api import WhisperAPIBackend
+from s2t.backends.whisper_api import WhisperAPIBackend
 ```
 
 Backend implementation using OpenAI's Whisper API.
@@ -140,7 +140,7 @@ The configuration module provides functionality for loading and managing configu
 ### `load_config`
 
 ```python
-from desktopstt.config import load_config
+from s2t.config import load_config
 ```
 
 ```python
@@ -155,7 +155,7 @@ Loads the configuration from the specified path or the default location.
 ### `DEFAULT_CONFIG_PATH`
 
 ```python
-from desktopstt.config import DEFAULT_CONFIG_PATH
+from s2t.config import DEFAULT_CONFIG_PATH
 ```
 
 The default path to the configuration file.
@@ -167,14 +167,14 @@ The popup recorder module provides a graphical interface for recording audio and
 ### Command-Line Interface
 
 ```
-python -m desktopstt.popup_recorder [options]
+python -m s2t.popup_recorder [options]
 ```
 
 #### Options
 
 - `--time SECONDS`: Recording time in seconds (default: record until stopped)
 - `--output FILE`: Output file for transcription (default: print to stdout)
-- `--config FILE`: Path to config file (default: ~/.config/desktopstt/config.yaml)
+- `--config FILE`: Path to config file (default: ~/.config/s2t/config.yaml)
 - `--env-file FILE`: Path to .env file (default: .env)
 - `--debug`: Enable debug logging
 - `--silent`: Output only the transcribed text (no logging)
@@ -186,7 +186,7 @@ python -m desktopstt.popup_recorder [options]
 ### `PopupRecorder`
 
 ```python
-from desktopstt.popup_recorder import PopupRecorder
+from s2t.popup_recorder import PopupRecorder
 ```
 
 #### Constructor
@@ -249,20 +249,20 @@ The truly silent module provides a terminal-based interface without any GUI.
 ### Command-Line Interface
 
 ```
-python -m desktopstt.truly_silent [options]
+python -m s2t.truly_silent [options]
 ```
 
 #### Options
 
 - `--time SECONDS`: Recording time in seconds (default: 5.0)
 - `--output FILE`: Output file for transcription (default: print to stdout)
-- `--config FILE`: Path to config file (default: ~/.config/desktopstt/config.yaml)
+- `--config FILE`: Path to config file (default: ~/.config/s2t/config.yaml)
 - `--env-file FILE`: Path to .env file (default: .env)
 
 ### `TrulySilentRecorder`
 
 ```python
-from desktopstt.truly_silent import TrulySilentRecorder
+from s2t.truly_silent import TrulySilentRecorder
 ```
 
 #### Constructor
@@ -293,7 +293,7 @@ The utils module provides utility functions used throughout the application.
 ### `load_dotenv`
 
 ```python
-from desktopstt.utils import load_dotenv
+from s2t.utils import load_dotenv
 ```
 
 ```python
@@ -308,15 +308,15 @@ Loads environment variables from a .env file.
 ### `get_temp_filename`
 
 ```python
-from desktopstt.utils import get_temp_filename
+from s2t.utils import get_temp_filename
 ```
 
 ```python
-get_temp_filename(prefix='desktopstt_', suffix='.wav')
+get_temp_filename(prefix='s2t_', suffix='.wav')
 ```
 
 Generates a temporary filename.
 
-- `prefix`: Prefix for the temporary filename (default: 'desktopstt_').
+- `prefix`: Prefix for the temporary filename (default: 's2t_').
 - `suffix`: Suffix for the temporary filename (default: '.wav').
 - Returns: Path to the temporary file.

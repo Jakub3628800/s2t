@@ -9,10 +9,14 @@ import tempfile
 import pytest
 from unittest.mock import MagicMock, patch
 
+import gi
+gi.require_version("Gtk", "4.0")
+from gi.repository import GLib
+
 # Mock sys.argv before importing truly_silent
 sys.argv = ['truly_silent']
 
-from desktopstt.truly_silent import TrulySilentRecorder
+from s2t.truly_silent import TrulySilentRecorder
 
 
 @pytest.fixture
@@ -58,8 +62,8 @@ def mock_audio_recorder():
     return recorder
 
 
-@patch("desktopstt.truly_silent.get_backend")
-@patch("desktopstt.truly_silent.AudioRecorder")
+@patch("s2t.truly_silent.get_backend")
+@patch("s2t.truly_silent.AudioRecorder")
 def test_silent_recorder_init(mock_audio_recorder_class, mock_get_backend, mock_config):
     """Test TrulySilentRecorder initialization."""
     mock_audio_recorder_class.return_value = MagicMock()
@@ -72,8 +76,8 @@ def test_silent_recorder_init(mock_audio_recorder_class, mock_get_backend, mock_
     assert recorder.is_recording is False
 
 
-@patch("desktopstt.truly_silent.get_backend")
-@patch("desktopstt.truly_silent.AudioRecorder")
+@patch("s2t.truly_silent.get_backend")
+@patch("s2t.truly_silent.AudioRecorder")
 def test_start_recording(mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend):
     """Test starting recording."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
@@ -88,8 +92,8 @@ def test_start_recording(mock_audio_recorder_class, mock_get_backend, mock_confi
     assert mock_audio_recorder.start_recording.called
 
 
-@patch("desktopstt.truly_silent.get_backend")
-@patch("desktopstt.truly_silent.AudioRecorder")
+@patch("s2t.truly_silent.get_backend")
+@patch("s2t.truly_silent.AudioRecorder")
 def test_stop_recording(mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend):
     """Test stopping recording."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
@@ -106,8 +110,8 @@ def test_stop_recording(mock_audio_recorder_class, mock_get_backend, mock_config
     assert audio_file == mock_audio_recorder.stop_recording.return_value
 
 
-@patch("desktopstt.truly_silent.get_backend")
-@patch("desktopstt.truly_silent.AudioRecorder")
+@patch("s2t.truly_silent.get_backend")
+@patch("s2t.truly_silent.AudioRecorder")
 def test_transcribe(mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend):
     """Test transcription."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
@@ -130,8 +134,8 @@ def test_transcribe(mock_audio_recorder_class, mock_get_backend, mock_config, mo
         os.unlink(temp_file.name)
 
 
-@patch("desktopstt.truly_silent.get_backend")
-@patch("desktopstt.truly_silent.AudioRecorder")
+@patch("s2t.truly_silent.get_backend")
+@patch("s2t.truly_silent.AudioRecorder")
 @patch("builtins.input", side_effect=KeyboardInterrupt)
 def test_record_and_transcribe(mock_input, mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend):
     """Test record and transcribe functionality."""

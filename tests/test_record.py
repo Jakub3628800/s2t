@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """
-Simple script to test audio recording without transcription.
+Tests for the audio recording functionality.
 """
 
 import sys
 import time
 import logging
-from desktopstt.audio import AudioRecorder
-from desktopstt.config import load_config, DEFAULT_CONFIG_PATH
+import os
+import tempfile
+import unittest
+from unittest.mock import MagicMock, patch
+from s2t.audio import AudioRecorder
+from s2t.config import load_config, DEFAULT_CONFIG_PATH
 
 # Set up logging
 logging.basicConfig(

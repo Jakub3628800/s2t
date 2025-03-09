@@ -21,10 +21,10 @@ os.environ["PYTHONWARNINGS"] = "ignore"
 logging.disable(logging.CRITICAL)
 
 # Import after disabling warnings and logging
-from desktopstt.audio import AudioRecorder
-from desktopstt.backends import get_backend
-from desktopstt.config import DEFAULT_CONFIG_PATH, load_config
-from desktopstt.utils import load_dotenv
+from s2t.audio import AudioRecorder
+from s2t.backends import get_backend
+from s2t.config import DEFAULT_CONFIG_PATH, load_config
+from s2t.utils import load_dotenv
 
 
 class TrulySilentRecorder:

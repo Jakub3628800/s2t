@@ -1,5 +1,5 @@
 """
-Configuration management for DesktopSTT.
+Configuration management for S2T.
 """
 
 import logging
@@ -10,7 +10,7 @@ import yaml
 logger = logging.getLogger(__name__)
 
 # Default configuration paths
-CONFIG_DIR = os.path.expanduser("~/.config/desktopstt")
+CONFIG_DIR = os.path.expanduser("~/.config/s2t")
 DEFAULT_CONFIG_PATH = os.path.join(CONFIG_DIR, "config.yaml")
 
 # Default configuration
