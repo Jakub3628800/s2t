@@ -1,4 +1,4 @@
-.PHONY: install dev-install clean test run-popup run-silent run-popup-immediate run-headless build run-s2t
+.PHONY: install dev-install clean test build run
 
 # Default Python interpreter
 PYTHON ?= python3
@@ -34,44 +34,13 @@ clean:
 test:
 	$(PYTHON) -m pytest tests/
 
-test-coverage:
-	$(PYTHON) -m pytest --cov=s2t tests/
-
 # Build targets
 build:
 	uv pip build
 
 # Run targets
-run-popup:
-	$(PYTHON) -m s2t.popup_recorder
-
-run-popup-silent:
-	PYTHONWARNINGS=ignore $(PYTHON) -m s2t.popup_recorder --silent --silence-duration 3.0 2>/dev/null
-
-run-popup-immediate:
-	$(PYTHON) -m s2t.immediate_popup
-
-run-headless:
-	$(PYTHON) -m s2t.headless_recorder
-
-run-silent:
-	$(PYTHON) -m s2t.truly_silent
-
-# Script targets - using the new unified script
-run-script:
-	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py
-
-run-script-popup:
-	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py
-
-run-script-silent:
-	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py --silent
-
-run-script-newline:
-	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py --newline
-
-run-script-silent-newline:
-	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py --silent --newline
+run:
+	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py $(ARGS)
 
 # Help target
 help:
@@ -84,20 +53,11 @@ help:
 	@echo "  install-venv    Create a virtual environment and install in development mode using UV"
 	@echo "  clean           Clean build artifacts"
 	@echo "  test            Run tests"
-	@echo "  test-coverage   Run tests with coverage report"
 	@echo "  build           Build the package using UV"
-	@echo "  run-popup       Run with a pop-up recording window (with VAD)"
-	@echo "  run-popup-silent Run with a pop-up recording window in silent mode"
-	@echo "  run-popup-immediate Run with a pop-up that starts recording immediately"
-	@echo "  run-headless    Run the headless recorder with notifications"
-	@echo "  run-silent      Run the truly silent recorder"
-	@echo "  run-script      Run the unified script (popup mode by default)"
-	@echo "  run-script-popup Run the unified script in popup mode"
-	@echo "  run-script-silent Run the unified script in silent mode"
-	@echo "  run-script-newline Run the unified script with newline after transcription"
-	@echo "  run-script-silent-newline Run the unified script in silent mode with newline"
+	@echo "  run             Run the unified script (use ARGS='--silent' for silent mode)"
 	@echo "  help            Show this help message"
 	@echo ""
 	@echo "Variables:"
 	@echo "  PYTHON          Python interpreter to use (default: python3)"
 	@echo "  VENV_DIR        Virtual environment directory (default: .venv)"
+	@echo "  ARGS            Additional arguments to pass to the script (e.g., ARGS='--silent')"

@@ -13,18 +13,21 @@ import pytest
 sys.argv = ["test_convenience_scripts"]
 
 
+@pytest.mark.skip(reason="Bash scripts have been removed")
 def test_popup_silent_script_exists():
     """Test that the popup silent script exists."""
     assert os.path.exists("s2t-popup-silent.sh")
     assert os.access("s2t-popup-silent.sh", os.X_OK)
 
 
+@pytest.mark.skip(reason="Bash scripts have been removed")
 def test_silent_script_exists():
     """Test that the silent script exists."""
     assert os.path.exists("s2t-silent.sh")
     assert os.access("s2t-silent.sh", os.X_OK)
 
 
+@pytest.mark.skip(reason="Bash scripts have been removed")
 @patch("subprocess.run")
 def test_popup_silent_script_content(mock_run):
     """Test that the popup silent script contains the expected content."""
@@ -38,6 +41,7 @@ def test_popup_silent_script_content(mock_run):
     assert "wtype" in content
 
 
+@pytest.mark.skip(reason="Bash scripts have been removed")
 @patch("subprocess.run")
 def test_silent_script_content(mock_run):
     """Test that the silent script contains the expected content."""
@@ -51,6 +55,7 @@ def test_silent_script_content(mock_run):
     assert "wtype" in content
 
 
+@pytest.mark.skip(reason="Bash scripts have been removed")
 @patch("subprocess.Popen")
 def test_popup_silent_script_execution(mock_popen):
     """Test that the popup silent script can be executed."""
@@ -67,6 +72,7 @@ def test_popup_silent_script_execution(mock_popen):
         pytest.fail(f"Failed to execute popup silent script: {e}")
 
 
+@pytest.mark.skip(reason="Bash scripts have been removed")
 @patch("subprocess.Popen")
 def test_silent_script_execution(mock_popen):
     """Test that the silent script can be executed."""
