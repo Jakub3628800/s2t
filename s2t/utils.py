@@ -4,7 +4,6 @@ Utility functions for S2T.
 
 import logging
 import os
-import tempfile
 
 logger = logging.getLogger(__name__)
 
@@ -49,19 +48,3 @@ def load_dotenv(dotenv_path=".env"):
     except Exception as e:
         logger.error(f"Error loading .env file: {e}")
         return False
-
-
-def get_temp_filename(prefix="s2t_", suffix=".wav"):
-    """
-    Generate a temporary filename.
-
-    Args:
-        prefix: Prefix for the temporary filename
-        suffix: Suffix for the temporary filename
-
-    Returns:
-        str: Path to the temporary file
-    """
-    fd, path = tempfile.mkstemp(suffix=suffix, prefix=prefix)
-    os.close(fd)
-    return path

@@ -147,29 +147,3 @@ class AudioRecorder:
 
         self.frames = []
         self.is_recording = False
-
-    def list_input_devices(self):
-        """List available input devices."""
-        devices = []
-        try:
-            p = pyaudio.PyAudio()
-            info = p.get_host_api_info_by_index(0)
-            num_devices = info.get("deviceCount")
-
-            for i in range(num_devices):
-                device_info = p.get_device_info_by_host_api_device_index(0, i)
-                if device_info.get("maxInputChannels") > 0:
-                    devices.append(
-                        {
-                            "index": i,
-                            "name": device_info.get("name"),
-                            "channels": device_info.get("maxInputChannels"),
-                            "sample_rate": device_info.get("defaultSampleRate"),
-                        }
-                    )
-
-            p.terminate()
-        except Exception as e:
-            logger.error(f"Error listing input devices: {e}")
-
-        return devices

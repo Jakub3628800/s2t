@@ -89,20 +89,6 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
         return DEFAULT_CONFIG
 
 
-def save_config(config, config_path=DEFAULT_CONFIG_PATH):
-    """Save configuration to file."""
-    ensure_config_dir()
-
-    try:
-        with open(config_path, "w") as f:
-            yaml.dump(config, f, default_flow_style=False)
-        logger.info(f"Saved configuration to {config_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Error saving configuration: {e}")
-        return False
-
-
 def _deep_update(d, u):
     """Recursively update a dictionary."""
     for k, v in u.items():

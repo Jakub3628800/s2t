@@ -77,21 +77,13 @@ def main():
     )
     parser.add_argument("--silent", action="store_true", help="Use silent mode (no GUI window)")
     parser.add_argument(
-        "--newline",
-        action="store_true",
-        help="Add a newline character after the transcription",
+        "--newline", action="store_true", help="Add a newline character after the transcription"
     )
     parser.add_argument(
-        "--threshold",
-        type=float,
-        default=0.05,
-        help="Silence threshold (0.0-1.0, default: 0.05)",
+        "--threshold", type=float, default=0.05, help="Silence threshold (0.0-1.0, default: 0.05)"
     )
     parser.add_argument(
-        "--duration",
-        type=float,
-        default=2.0,
-        help="Silence duration in seconds (default: 2.0)",
+        "--duration", type=float, default=2.0, help="Silence duration in seconds (default: 2.0)"
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug output")
     args = parser.parse_args()
@@ -163,38 +155,16 @@ def main():
                 transcription += "\n"
                 print("Adding newline character")
 
-            # Use full path for wtype
-            wtype_path = shutil.which("wtype")
-            if wtype_path:
-                subprocess.run([wtype_path, transcription], check=False)
-            else:
-                print("Error: wtype command not found")
+            subprocess.run(["wtype", transcription])
         else:
             print("No speech detected or transcription was empty")
             if args.debug:
                 print("No transcription returned from recorder")
-
-            # Use full path for notify-send
-            notify_send_path = shutil.which("notify-send")
-            if notify_send_path:
-                subprocess.run(
-                    [
-                        notify_send_path,
-                        "S2T",
-                        "No speech detected or transcription was empty",
-                    ],
-                    check=False,
-                )
+            subprocess.run(["notify-send", "S2T", "No speech detected or transcription was empty"])
 
     except Exception as e:
         print(f"Error: {e}")
-        # Use full path for notify-send
-        notify_send_path = shutil.which("notify-send")
-        if notify_send_path:
-            subprocess.run(
-                [notify_send_path, "-u", "critical", "S2T Error", f"Error: {e}"],
-                check=False,
-            )
+        subprocess.run(["notify-send", "-u", "critical", "S2T Error", f"Error: {e}"])
         sys.exit(1)
 
 
