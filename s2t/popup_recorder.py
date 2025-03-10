@@ -15,6 +15,7 @@ import time
 
 # Import gi and set the required versions
 import gi
+import numpy as np  # Add NumPy import
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")

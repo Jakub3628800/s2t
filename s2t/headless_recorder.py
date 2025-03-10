@@ -61,7 +61,9 @@ def main():
     parser.add_argument("--wtype", action="store_true", help="Output transcription using wtype")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
     parser.add_argument(
-        "--silent", action="store_true", help="Suppress all output except the transcription"
+        "--silent",
+        action="store_true",
+        help="Suppress all output except the transcription",
     )
     parser.add_argument(
         "--no-notifications", action="store_true", help="Disable desktop notifications"

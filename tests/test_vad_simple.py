@@ -67,7 +67,12 @@ class TestVAD(unittest.TestCase):
         """Test that default VAD values are used when not specified."""
         # Create a config without VAD settings
         config = {
-            "audio": {"sample_rate": 16000, "channels": 1, "chunk_size": 1024, "device_index": None}
+            "audio": {
+                "sample_rate": 16000,
+                "channels": 1,
+                "chunk_size": 1024,
+                "device_index": None,
+            }
         }
 
         # Create a mock recorder class

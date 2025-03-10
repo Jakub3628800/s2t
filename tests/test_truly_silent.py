@@ -24,7 +24,11 @@ def mock_config():
     """Return a mock configuration for testing."""
     return {
         "backends": {
-            "whisper_api": {"api_key": "test_api_key", "model": "whisper-1", "language": "en"}
+            "whisper_api": {
+                "api_key": "test_api_key",
+                "model": "whisper-1",
+                "language": "en",
+            }
         },
         "silent_recorder": {
             "vad_enabled": True,
@@ -75,7 +79,11 @@ def test_silent_recorder_init(mock_audio_recorder_class, mock_get_backend, mock_
 @patch("s2t.truly_silent.get_backend")
 @patch("s2t.truly_silent.AudioRecorder")
 def test_start_recording(
-    mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend
+    mock_audio_recorder_class,
+    mock_get_backend,
+    mock_config,
+    mock_audio_recorder,
+    mock_backend,
 ):
     """Test starting recording."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
@@ -93,7 +101,11 @@ def test_start_recording(
 @patch("s2t.truly_silent.get_backend")
 @patch("s2t.truly_silent.AudioRecorder")
 def test_stop_recording(
-    mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend
+    mock_audio_recorder_class,
+    mock_get_backend,
+    mock_config,
+    mock_audio_recorder,
+    mock_backend,
 ):
     """Test stopping recording."""
     mock_audio_recorder_class.return_value = mock_audio_recorder
@@ -113,7 +125,11 @@ def test_stop_recording(
 @patch("s2t.truly_silent.get_backend")
 @patch("s2t.truly_silent.AudioRecorder")
 def test_transcribe(
-    mock_audio_recorder_class, mock_get_backend, mock_config, mock_audio_recorder, mock_backend
+    mock_audio_recorder_class,
+    mock_get_backend,
+    mock_config,
+    mock_audio_recorder,
+    mock_backend,
 ):
     """Test transcription."""
     mock_audio_recorder_class.return_value = mock_audio_recorder

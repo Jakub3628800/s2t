@@ -20,7 +20,12 @@ def test_audio_recorder_init():
     """Test that the AudioRecorder initializes correctly."""
     # Create a simple config
     config = {
-        "audio": {"sample_rate": 16000, "channels": 1, "chunk_size": 1024, "device_index": None}
+        "audio": {
+            "sample_rate": 16000,
+            "channels": 1,
+            "chunk_size": 1024,
+            "device_index": None,
+        }
     }
 
     try:
@@ -51,7 +56,12 @@ def test_audio_recorder_start_stop():
     """Test that the AudioRecorder start_recording and stop_recording methods work correctly."""
     # Create a simple config
     config = {
-        "audio": {"sample_rate": 16000, "channels": 1, "chunk_size": 1024, "device_index": None}
+        "audio": {
+            "sample_rate": 16000,
+            "channels": 1,
+            "chunk_size": 1024,
+            "device_index": None,
+        }
     }
 
     try:

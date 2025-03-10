@@ -10,6 +10,7 @@ dependencies = [
     "pycairo>=1.20.0",
     "pyaudio>=0.2.13",
     "pyyaml>=6.0",
+    "pytest>=7.0.0",
     "numpy>=1.26.0",
 ]
 license = {text = "MIT"}
@@ -41,4 +42,5 @@ ignore = ["ANN", "S101"]
 "s2t/audio/recorder.py" = ["E722"]
 "s2t/headless_recorder.py" = ["E402", "F821"]
 "s2t/immediate_popup.py" = ["E402", "S603", "S607"]
+"s2t.py" = ["S603", "S607"]
 "tests/*" = ["S101", "E402", "S108", "N811"]

@@ -73,7 +73,11 @@ def mock_config():
     """Return a mock configuration for testing."""
     return {
         "backends": {
-            "whisper_api": {"api_key": "test_api_key", "model": "whisper-1", "language": "en"}
+            "whisper_api": {
+                "api_key": "test_api_key",
+                "model": "whisper-1",
+                "language": "en",
+            }
         },
         "popup_recorder": {
             "vad_enabled": True,

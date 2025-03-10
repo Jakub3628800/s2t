@@ -1,4 +1,4 @@
-.PHONY: install dev-install clean test run-popup run-silent run-popup-immediate run-headless build
+.PHONY: install dev-install clean test run-popup run-silent run-popup-immediate run-headless build run-s2t
 
 # Default Python interpreter
 PYTHON ?= python3
@@ -57,12 +57,21 @@ run-headless:
 run-silent:
 	$(PYTHON) -m s2t.truly_silent
 
-# Script targets
+# Script targets - using the new unified script
+run-script:
+	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py
+
 run-script-popup:
-	./s2t-popup-silent.sh
+	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py
 
 run-script-silent:
-	./s2t-silent.sh
+	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py --silent
+
+run-script-newline:
+	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py --newline
+
+run-script-silent-newline:
+	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py --silent --newline
 
 # Help target
 help:
@@ -82,8 +91,11 @@ help:
 	@echo "  run-popup-immediate Run with a pop-up that starts recording immediately"
 	@echo "  run-headless    Run the headless recorder with notifications"
 	@echo "  run-silent      Run the truly silent recorder"
-	@echo "  run-script-popup Run the optimized popup script"
-	@echo "  run-script-silent Run the silent script"
+	@echo "  run-script      Run the unified script (popup mode by default)"
+	@echo "  run-script-popup Run the unified script in popup mode"
+	@echo "  run-script-silent Run the unified script in silent mode"
+	@echo "  run-script-newline Run the unified script with newline after transcription"
+	@echo "  run-script-silent-newline Run the unified script in silent mode with newline"
 	@echo "  help            Show this help message"
 	@echo ""
 	@echo "Variables:"
