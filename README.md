@@ -36,17 +36,47 @@ Comprehensive documentation is available in the [docs](docs/) directory:
 
 ## Installation
 
+### Option 1: Install with UV (Recommended)
+
+You can install S2T directly from GitHub using [UV](https://github.com/astral-sh/uv), an extremely fast Python package installer:
+
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/s2t.git
+# Install UV if you don't have it yet
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install S2T from GitHub
+uv pip install git+https://github.com/Jakub3628800/s2t.git
+
+# Or install a specific version using a tag
+uv pip install git+https://github.com/Jakub3628800/s2t.git@v0.1.0
+```
+
+### Option 2: Clone and Install
+
+You can also clone the repository and install it locally:
+
+```bash
+git clone https://github.com/Jakub3628800/s2t.git
 cd s2t
+uv pip install -e .
+```
 
-# Create a virtual environment
-python -m venv .venv
-source .venv/bin/activate
+### Option 3: Run Without Installing
 
-# Install the package
-pip install -e .
+You can also run S2T directly without installing it using `uvx`:
+
+```bash
+# Run the popup recorder
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-popup
+
+# Run the silent recorder
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-silent
+
+# Run the immediate popup recorder
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-immediate
+
+# Run the headless recorder
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-headless
 ```
 
 ### Dependencies
