@@ -1,14 +1,32 @@
-.PHONY: install dev-install clean test build run
+.PHONY: install dev-install clean test build run run-local-popup run-local-silent run-local-immediate run-local-headless test-local-popup test-local-silent test-local-immediate test-local-headless test-all-local check-deps test-minimal test-structure
 
 # Default Python interpreter
 PYTHON ?= python3
 VENV_DIR ?= .venv
 
+# Check for system dependencies
+check-deps:
+	@echo "Checking for required system dependencies..."
+	@if ! pkg-config --exists gobject-introspection-1.0; then \
+		echo "Error: gobject-introspection-1.0 development libraries not found"; \
+		echo "Install using: sudo apt-get install libgirepository1.0-dev"; \
+		exit 1; \
+	fi
+	@if ! pkg-config --exists gtk4; then \
+		echo "Warning: GTK4 development libraries not found (needed for popup mode)"; \
+		echo "Install using: sudo apt-get install libgtk-4-dev"; \
+	fi
+	@if ! which wtype >/dev/null 2>&1; then \
+		echo "Warning: wtype not found (needed for automatic typing)"; \
+		echo "Install using: sudo apt-get install wtype"; \
+	fi
+	@echo "System dependencies check completed."
+
 # Installation targets
-install:
+install: check-deps
 	uv pip install .
 
-dev-install:
+dev-install: check-deps
 	uv pip install -e ".[dev]"
 
 venv:
@@ -42,6 +60,50 @@ build:
 run:
 	OPENAI_API_KEY=$$(grep OPENAI_API_KEY .env | cut -d= -f2) ./s2t.py $(ARGS)
 
+# Local UV run targets (without installation)
+run-local-popup: check-deps
+	uvx --from . s2t-popup $(ARGS)
+
+run-local-silent: check-deps
+	uvx --from . s2t-silent $(ARGS)
+
+run-local-immediate: check-deps
+	uvx --from . s2t-immediate $(ARGS)
+
+run-local-headless: check-deps
+	uvx --from . s2t-headless $(ARGS)
+
+# Test local run targets
+test-local-popup: check-deps
+	uvx --from . s2t-popup --help
+
+test-local-silent: check-deps
+	uvx --from . s2t-silent --help
+
+test-local-immediate: check-deps
+	uvx --from . s2t-immediate --help
+
+test-local-headless: check-deps
+	uvx --from . s2t-headless --help
+
+# Test minimal dependency version (silent mode)
+test-minimal: check-deps
+	@echo "Testing minimal functionality (silent mode)..."
+	@if ! uvx --from . s2t-silent --help >/dev/null 2>&1; then \
+		echo "Error: Silent mode test failed!"; \
+		exit 1; \
+	fi
+	@echo "Silent mode test passed."
+
+# Test structure only (no dependencies required)
+test-structure:
+	@echo "Testing package structure (no dependencies required)..."
+	@$(PYTHON) -c "from importlib import import_module; modules = ['s2t', 's2t.config', 's2t.utils']; all_good = True; [print(f'✓ {m} importable') if __import__(m) else print(f'✗ {m} not importable') or (all_good := False) for m in modules]; exit(0 if all_good else 1)"
+	@echo "Package structure test completed."
+
+test-all-local: test-local-popup test-local-silent test-local-immediate test-local-headless
+	@echo "All local run tests passed!"
+
 # Help target
 help:
 	@echo "S2T Makefile"
@@ -55,6 +117,18 @@ help:
 	@echo "  test            Run tests"
 	@echo "  build           Build the package using UV"
 	@echo "  run             Run the unified script (use ARGS='--silent' for silent mode)"
+	@echo "  run-local-popup      Run popup recorder locally using UV without installation"
+	@echo "  run-local-silent     Run silent recorder locally using UV without installation"
+	@echo "  run-local-immediate  Run immediate popup recorder locally using UV without installation"
+	@echo "  run-local-headless   Run headless recorder locally using UV without installation"
+	@echo "  test-local-popup     Test local popup recorder without installation"
+	@echo "  test-local-silent    Test local silent recorder without installation"
+	@echo "  test-local-immediate Test local immediate popup recorder without installation"
+	@echo "  test-local-headless  Test local headless recorder without installation"
+	@echo "  test-all-local       Test all local run options without installation"
+	@echo "  test-minimal         Test minimal functionality (silent mode only)"
+	@echo "  test-structure       Test package structure without requiring dependencies"
+	@echo "  check-deps           Check for required system dependencies"
 	@echo "  help            Show this help message"
 	@echo ""
 	@echo "Variables:"

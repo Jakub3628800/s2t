@@ -63,7 +63,7 @@ uv pip install -e .
 
 ### Option 3: Run Without Installing
 
-You can also run S2T directly without installing it using `uvx`:
+You can run S2T directly without installing it using `uvx`:
 
 ```bash
 # Run the popup recorder
@@ -79,13 +79,52 @@ uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-immediate
 uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-headless
 ```
 
+### Option 4: Run Locally (Development)
+
+If you've cloned the repository and want to run the project without installing it, you can use the provided Makefile targets:
+
+```bash
+# First, install system dependencies if needed:
+# - libgirepository1.0-dev (required)
+# - libgtk-4-dev (for popup mode)
+# - wtype (for auto-typing)
+sudo apt-get install libgirepository1.0-dev libgtk-4-dev wtype
+
+# Run the popup recorder
+make run-local-popup
+
+# Run the silent recorder
+make run-local-silent
+
+# Run the immediate popup recorder
+make run-local-immediate
+
+# Run the headless recorder
+make run-local-headless
+
+# Add arguments with ARGS
+make run-local-popup ARGS="--threshold 0.03 --duration 2.0"
+
+# Check for system dependencies
+make check-deps
+
+# Test package structure without installing dependencies
+make test-structure
+```
+
+The Makefile targets will check for required system dependencies before running.
+
 ### Dependencies
 
 - Python 3.12 or higher
 - GTK 4 (for popup mode)
+  - On Ubuntu/Debian: `sudo apt-get install libgtk-4-dev libgirepository1.0-dev`
+  - On Fedora: `sudo dnf install gtk4-devel gobject-introspection-devel`
 - PyAudio
 - OpenAI API key
 - `wtype` (for automatic typing of transcribed text)
+  - On Ubuntu/Debian: `sudo apt-get install wtype`
+  - On Arch Linux: `sudo pacman -S wtype`
 
 ## Usage
 
