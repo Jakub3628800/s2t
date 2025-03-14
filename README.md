@@ -84,11 +84,14 @@ uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-headless
 If you've cloned the repository and want to run the project without installing it, you can use the provided Makefile targets:
 
 ```bash
-# First, install system dependencies if needed:
-# - libgirepository1.0-dev (required)
+# First, install system dependencies:
+# - libgirepository1.0-dev (REQUIRED for ALL modes)
 # - libgtk-4-dev (for popup mode)
+# - portaudio19-dev and python3-dev (for recording)
 # - wtype (for auto-typing)
-sudo apt-get install libgirepository1.0-dev libgtk-4-dev wtype
+
+# Complete installation on Ubuntu/Debian:
+sudo apt-get install libgirepository1.0-dev libgtk-4-dev portaudio19-dev python3-dev wtype
 
 # Run the popup recorder
 make run-local-popup
@@ -117,14 +120,29 @@ The Makefile targets will check for required system dependencies before running.
 ### Dependencies
 
 - Python 3.12 or higher
+- GObject Introspection (Required for all modes)
+  - On Ubuntu/Debian: `sudo apt-get install libgirepository1.0-dev`
+  - On Fedora: `sudo dnf install gobject-introspection-devel`
+  - On Arch Linux: `sudo pacman -S gobject-introspection`
 - GTK 4 (for popup mode)
-  - On Ubuntu/Debian: `sudo apt-get install libgtk-4-dev libgirepository1.0-dev`
-  - On Fedora: `sudo dnf install gtk4-devel gobject-introspection-devel`
+  - On Ubuntu/Debian: `sudo apt-get install libgtk-4-dev`
+  - On Fedora: `sudo dnf install gtk4-devel`
+  - On Arch Linux: `sudo pacman -S gtk4`
 - PyAudio
+  - On Ubuntu/Debian: `sudo apt-get install portaudio19-dev python3-dev`
+  - On Fedora: `sudo dnf install portaudio-devel python3-devel`
+  - On Arch Linux: `sudo pacman -S portaudio`
 - OpenAI API key
 - `wtype` (for automatic typing of transcribed text)
   - On Ubuntu/Debian: `sudo apt-get install wtype`
   - On Arch Linux: `sudo pacman -S wtype`
+
+#### Complete System Dependencies Installation (Ubuntu/Debian)
+
+```bash
+# Install all system dependencies at once
+sudo apt-get install libgirepository1.0-dev libgtk-4-dev portaudio19-dev python3-dev wtype
+```
 
 ## Usage
 

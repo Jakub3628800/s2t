@@ -1,4 +1,4 @@
-.PHONY: install dev-install clean test build run run-local-popup run-local-silent run-local-immediate run-local-headless test-local-popup test-local-silent test-local-immediate test-local-headless test-all-local check-deps test-minimal test-structure
+.PHONY: install dev-install clean test build run run-local-popup run-local-silent run-local-immediate run-local-headless test-local-popup test-local-silent test-local-immediate test-local-headless test-all-local check-deps test-minimal test-structure run-minimal
 
 # Default Python interpreter
 PYTHON ?= python3
@@ -9,6 +9,11 @@ check-deps:
 	@echo "Checking for required system dependencies..."
 	@if ! pkg-config --exists gobject-introspection-1.0; then \
 		echo "Error: gobject-introspection-1.0 development libraries not found"; \
+		echo "Install using: sudo apt-get install libgirepository1.0-dev"; \
+		exit 1; \
+	fi
+	@if ! pkg-config --exists girepository-2.0; then \
+		echo "Error: girepository-2.0 not found (required for PyGObject)"; \
 		echo "Install using: sudo apt-get install libgirepository1.0-dev"; \
 		exit 1; \
 	fi
@@ -101,6 +106,13 @@ test-structure:
 	@$(PYTHON) -c "from importlib import import_module; modules = ['s2t', 's2t.config', 's2t.utils']; all_good = True; [print(f'✓ {m} importable') if __import__(m) else print(f'✗ {m} not importable') or (all_good := False) for m in modules]; exit(0 if all_good else 1)"
 	@echo "Package structure test completed."
 
+# Run silent mode without checking dependencies (for testing in minimal environments)
+run-minimal:
+	@echo "Running silent mode without dependency checks (minimal environment)..."
+	@echo "Note: This may fail if you don't have the required Python packages installed."
+	@$(PYTHON) -m s2t.truly_silent --help || { echo "Error: Failed to run silent mode."; exit 1; }
+	@echo "✓ Minimal test passed!"
+
 test-all-local: test-local-popup test-local-silent test-local-immediate test-local-headless
 	@echo "All local run tests passed!"
 
@@ -129,6 +141,7 @@ help:
 	@echo "  test-minimal         Test minimal functionality (silent mode only)"
 	@echo "  test-structure       Test package structure without requiring dependencies"
 	@echo "  check-deps           Check for required system dependencies"
+	@echo "  run-minimal          Run silent mode without dependency checks (minimal environment)"
 	@echo "  help            Show this help message"
 	@echo ""
 	@echo "Variables:"
