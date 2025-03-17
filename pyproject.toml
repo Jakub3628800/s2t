@@ -9,22 +9,17 @@ dependencies = [
     "pyyaml>=6.0",
     "pytest>=7.0.0",
     "numpy>=1.26.0",
+    "pygobject>=3.42.0",
+    "pycairo>=1.20.0",
+    "pyaudio>=0.2.13",
 ]
 license = {text = "MIT"}
 
+# Keep empty optional dependencies sections for backward compatibility
 [project.optional-dependencies]
-gui = [
-    "pygobject>=3.42.0",
-    "pycairo>=1.20.0",
-]
-audio = [
-    "pyaudio>=0.2.13",
-]
-full = [
-    "pygobject>=3.42.0",
-    "pycairo>=1.20.0",
-    "pyaudio>=0.2.13",
-]
+gui = []
+audio = []
+full = []
 
 [project.scripts]
 s2t = "s2t.main:main"
