@@ -1,8 +1,59 @@
-.PHONY: install dev-install clean test build run run-local-popup run-local-silent run-local-immediate run-local-headless test-local-popup test-local-silent test-local-immediate test-local-headless test-all-local check-deps test-minimal test-structure run-minimal
+.PHONY: install dev-install clean test build run run-local-popup run-local-silent run-local-immediate run-local-headless test-local-popup test-local-silent test-local-immediate test-local-headless test-all-local check-deps test-minimal test-structure run-minimal run-tool run-install-tool run-wrapper-tool install-wrapper-tool run-uvx run-from-git
 
 # Default Python interpreter
 PYTHON ?= python3
 VENV_DIR ?= .venv
+
+# Run as UV tool (direct run)
+run-tool:
+	@echo "Running s2t directly with UV..."
+	uv run s2t.py $(ARGS)
+
+# Run as UV installed tool
+run-install-tool:
+	@echo "Installing and running s2t as a UV tool..."
+	uv pip install -e .
+	uv tool install -e .
+	uvx s2t $(ARGS)
+
+# Run as direct wrapper tool
+run-wrapper-tool:
+	@echo "Running s2t wrapper tool directly..."
+	uv run s2t_tool.py $(ARGS)
+
+# Install just the wrapper tool
+install-wrapper-tool:
+	@echo "Installing the s2t wrapper tool..."
+	@mkdir -p $(HOME)/.local/bin
+	@echo '#!/bin/sh' > $(HOME)/.local/bin/s2t
+	@echo 'uv run $(PWD)/s2t_tool.py "$$@"' >> $(HOME)/.local/bin/s2t
+	@chmod +x $(HOME)/.local/bin/s2t
+	@echo "Wrapper installed to ~/.local/bin/s2t"
+	@echo "Make sure ~/.local/bin is in your PATH"
+
+# Run as uvx command
+run-uvx:
+	@echo "Running s2t with uv tool pattern..."
+	uv run -m s2t_tool $(ARGS)
+
+# Run directly from Git repo - true GitHub approach
+run-from-git:
+	@echo "Running s2t directly from GitHub repository..."
+	@echo "Note: This approach requires system dependencies to work correctly."
+	@echo "If it fails, install: libgirepository1.0-dev libgtk-4-dev wtype"
+	@echo ""
+	@if [ -n "$(VIA_LOCAL)" ]; then \
+		echo "Using local wrapper for testing the GitHub approach..."; \
+		uv run s2t_tool.py $(ARGS); \
+	else \
+		uvx --from "git+https://github.com/Jakub3628800/s2t.git" s2t-immediate $(ARGS) || { \
+			echo ""; \
+			echo "Error: Direct GitHub execution failed. Try:"; \
+			echo "1. Install system dependencies: sudo apt-get install libgirepository1.0-dev libgtk-4-dev"; \
+			echo "2. Or use local mode: make run-from-git VIA_LOCAL=1"; \
+			exit 1; \
+		}; \
+	fi
 
 # Check for system dependencies
 check-deps:
@@ -142,6 +193,12 @@ help:
 	@echo "  test-structure       Test package structure without requiring dependencies"
 	@echo "  check-deps           Check for required system dependencies"
 	@echo "  run-minimal          Run silent mode without dependency checks (minimal environment)"
+	@echo "  run-tool             Run s2t as a UV tool"
+	@echo "  run-install-tool     Install and run s2t as a UV tool"
+	@echo "  run-wrapper-tool     Run s2t wrapper tool directly"
+	@echo "  install-wrapper-tool  Install just the wrapper tool"
+	@echo "  run-uvx              Run s2t with uvx"
+	@echo "  run-from-git         Run s2t directly from GitHub repository"
 	@echo "  help            Show this help message"
 	@echo ""
 	@echo "Variables:"

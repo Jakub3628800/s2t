@@ -303,3 +303,81 @@ Or in the convenience script:
 ## License
 
 [MIT License](LICENSE)
+
+## Running with UV
+
+You can run S2T using UV's tool features in several ways:
+
+### 1. Run directly from Git repository
+
+```bash
+# Install system dependencies (REQUIRED)
+sudo apt-get install libgirepository1.0-dev libgtk-4-dev wtype 
+
+# Then run directly from GitHub:
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-immediate
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-popup
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-silent
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-headless
+
+# With options
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-immediate --threshold 0.03 --duration 1.5
+```
+
+If you want to specify which extras to include:
+
+```bash
+# Just the GUI components
+uvx --from "git+https://github.com/Jakub3628800/s2t.git[gui]" s2t-popup
+
+# Just audio components
+uvx --from "git+https://github.com/Jakub3628800/s2t.git[audio]" s2t-silent
+
+# Full installation with all dependencies
+uvx --from "git+https://github.com/Jakub3628800/s2t.git[full]" s2t-immediate
+```
+
+### 2. Run directly with `uv run` (recommended for local development)
+
+```bash
+# Run with default options
+uv run s2t.py
+
+# Run with additional options
+uv run s2t.py --silent
+uv run s2t.py --newline --threshold 0.03
+```
+
+### 3. Run as a module with `uv run -m`
+
+```bash
+# Run with default options
+uv run -m s2t_tool
+
+# Run with additional options
+uv run -m s2t_tool --silent
+```
+
+### 4. Using the Makefile targets
+
+```bash
+# Run with default options
+make run-tool       # Using uv run s2t.py
+make run-uvx        # Using uv run -m s2t_tool
+make run-from-git   # Run directly from Git repository
+
+# Run with additional options
+make run-tool ARGS="--silent"
+make run-uvx ARGS="--newline --threshold 0.03"
+```
+
+### 5. Install a wrapper script
+
+```bash
+# Install a wrapper script to ~/.local/bin
+make install-wrapper-tool
+
+# Then run s2t directly (if ~/.local/bin is in your PATH)
+s2t
+s2t --silent
+```
