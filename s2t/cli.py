@@ -51,6 +51,27 @@ def print_dependency_warning(missing_deps):
     print("\nCannot continue without these dependencies.\n")
 
 
+def print_python_module_error(error, extras):
+    """Print a helpful error message for missing Python modules."""
+    module_name = str(error).split("'")[1] if "'" in str(error) else str(error)
+    print(f"Error: Missing Python modules: {error}")
+    
+    # Special case for gi module (PyGObject)
+    if module_name == "gi":
+        print("\nThe 'gi' module is provided by the 'pygobject' package, which requires system dependencies.")
+        print("1. First install system dependencies:")
+        print("   sudo apt-get install libgirepository1.0-dev")
+        print(f"2. Then install Python package: pip install s2t[{extras}]")
+    else:
+        print(f"Try installing with: pip install s2t[{extras}]")
+    
+    print("\nAlternatively, install all dependencies at once:")
+    print("1. System dependencies:")
+    print("   sudo apt-get install libgirepository1.0-dev libgtk-4-dev wtype")
+    print("2. Python packages:")
+    print("   pip install s2t[full]")
+
+
 def run_popup():
     """Run the popup recorder."""
     missing_deps = check_system_dependencies()
@@ -62,8 +83,7 @@ def run_popup():
         from s2t.popup_recorder import main
         main()
     except ImportError as e:
-        print(f"Error: Missing Python modules: {e}")
-        print("Try installing with: pip install s2t[gui]")
+        print_python_module_error(e, "gui")
         sys.exit(1)
 
 
@@ -78,8 +98,7 @@ def run_silent():
         from s2t.truly_silent import main
         main()
     except ImportError as e:
-        print(f"Error: Missing Python modules: {e}")
-        print("Try installing with: pip install s2t[full]")
+        print_python_module_error(e, "full")
         sys.exit(1)
 
 
@@ -94,8 +113,7 @@ def run_immediate():
         from s2t.immediate_popup import main
         main()
     except ImportError as e:
-        print(f"Error: Missing Python modules: {e}")
-        print("Try installing with: pip install s2t[full]")
+        print_python_module_error(e, "full")
         sys.exit(1)
 
 
@@ -110,8 +128,7 @@ def run_headless():
         from s2t.headless_recorder import main
         main()
     except ImportError as e:
-        print(f"Error: Missing Python modules: {e}")
-        print("Try installing with: pip install s2t[full]")
+        print_python_module_error(e, "full")
         sys.exit(1)
 
 
