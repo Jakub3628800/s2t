@@ -341,29 +341,29 @@ uvx --from "git+https://github.com/Jakub3628800/s2t.git[full]" s2t-immediate
 
 ```bash
 # Run with default options
-uv run s2t.py
+uv run -m s2t.main
 
 # Run with additional options
-uv run s2t.py --silent
-uv run s2t.py --newline --threshold 0.03
+uv run -m s2t.main --silent
+uv run -m s2t.main --newline --threshold 0.03
 ```
 
 ### 3. Run as a module with `uv run -m`
 
 ```bash
 # Run with default options
-uv run -m s2t_tool
+uv run -m s2t.main
 
 # Run with additional options
-uv run -m s2t_tool --silent
+uv run -m s2t.main --silent
 ```
 
 ### 4. Using the Makefile targets
 
 ```bash
 # Run with default options
-make run-tool       # Using uv run s2t.py
-make run-uvx        # Using uv run -m s2t_tool
+make run-tool       # Using uv run -m s2t.main
+make run-uvx        # Using uv run -m s2t.main
 make run-from-git   # Run directly from Git repository
 
 # Run specific entry points

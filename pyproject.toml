@@ -27,6 +27,7 @@ full = [
 ]
 
 [project.scripts]
+s2t = "s2t.main:main"
 s2t-popup = "s2t.cli:run_popup"
 s2t-silent = "s2t.cli:run_silent"
 s2t-immediate = "s2t.cli:run_immediate"
@@ -34,7 +35,7 @@ s2t-headless = "s2t.cli:run_headless"
 
 # Define s2t as a UV tool
 [project.entry-points."uv.commands"]
-s2t = "s2t_tool:main"
+s2t = "s2t.main:main"
 s2t-popup = "s2t.cli:run_popup"
 s2t-silent = "s2t.cli:run_silent"
 s2t-immediate = "s2t.cli:run_immediate"
@@ -61,5 +62,5 @@ ignore = ["ANN", "S101"]
 "s2t/audio/recorder.py" = ["E722"]
 "s2t/headless_recorder.py" = ["E402", "F821"]
 "s2t/immediate_popup.py" = ["E402", "S603", "S607"]
-"s2t.py" = ["S603", "S607"]
+"s2t/main.py" = ["S603", "S607"]
 "tests/*" = ["S101", "E402", "S108", "N811"]

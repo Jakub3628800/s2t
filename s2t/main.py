@@ -13,7 +13,7 @@ Features:
 - Option to add a newline character after the transcription
 
 Usage:
-  s2t.py [options]
+  s2t [options]
 
 Options:
   --silent       Use silent mode (no GUI window, only notifications)
@@ -24,11 +24,11 @@ Options:
   --help         Show this help message
 
 Examples:
-  s2t.py                     # Run in popup mode (default)
-  s2t.py --silent            # Run in silent mode
-  s2t.py --newline           # Add newline after transcription
-  s2t.py --threshold 0.03    # Set custom silence threshold
-  s2t.py --duration 1.5      # Set custom silence duration
+  s2t                     # Run in popup mode (default)
+  s2t --silent            # Run in silent mode
+  s2t --newline           # Add newline after transcription
+  s2t --threshold 0.03    # Set custom silence threshold
+  s2t --duration 1.5      # Set custom silence duration
 """
 
 import argparse
@@ -40,13 +40,9 @@ import sys
 from pathlib import Path
 
 # Import S2T modules directly
-try:
-    from s2t.config import DEFAULT_CONFIG_PATH, load_config
-    from s2t.headless_recorder import TrulySilentRecorder
-    from s2t.immediate_popup import ImmediatePopupRecorder
-except ImportError:
-    print("Error: S2T modules not found. Make sure you're in the S2T repository directory.")
-    sys.exit(1)
+from s2t.config import DEFAULT_CONFIG_PATH, load_config
+from s2t.headless_recorder import TrulySilentRecorder
+from s2t.immediate_popup import ImmediatePopupRecorder
 
 
 def main():
@@ -87,29 +83,6 @@ def main():
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug output")
     args = parser.parse_args()
-
-    # Path to the s2t repository
-    s2t_path = Path.home() / "repos" / "s2t"
-
-    # Change to the s2t directory
-    try:
-        os.chdir(s2t_path)
-    except Exception as e:
-        print(f"Error: Could not find s2t repository at {s2t_path}: {e}")
-        # Use full path for notify-send
-        notify_send_path = shutil.which("notify-send")
-        if notify_send_path:
-            subprocess.run(
-                [
-                    notify_send_path,
-                    "-u",
-                    "critical",
-                    "S2T Error",
-                    f"Could not find s2t repository at {s2t_path}",
-                ],
-                check=False,
-            )
-        sys.exit(1)
 
     # Notify that recording is starting
     notify_send_path = shutil.which("notify-send")
@@ -169,4 +142,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main() 
