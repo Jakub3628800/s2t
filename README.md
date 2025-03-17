@@ -314,14 +314,14 @@ You can run S2T using UV's tool features in several ways:
 # Install system dependencies (REQUIRED)
 sudo apt-get install libgirepository1.0-dev libgtk-4-dev wtype 
 
-# Then run directly from GitHub:
-uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-immediate
+# Then run directly from GitHub (system dependency checks included):
 uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-popup
 uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-silent
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-immediate
 uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-headless
 
 # With options
-uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-immediate --threshold 0.03 --duration 1.5
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-popup --threshold 0.03 --duration 1.5
 ```
 
 If you want to specify which extras to include:
@@ -366,12 +366,31 @@ make run-tool       # Using uv run s2t.py
 make run-uvx        # Using uv run -m s2t_tool
 make run-from-git   # Run directly from Git repository
 
+# Run specific entry points
+make run-cli-popup       # Run popup recorder via CLI module
+make run-cli-silent      # Run silent recorder via CLI module
+make run-cli-immediate   # Run immediate popup recorder via CLI module
+make run-cli-headless    # Run headless recorder via CLI module
+
 # Run with additional options
 make run-tool ARGS="--silent"
-make run-uvx ARGS="--newline --threshold 0.03"
+make run-cli-popup ARGS="--threshold 0.03 --duration 1.5"
 ```
 
-### 5. Install a wrapper script
+### 5. Using the CLI module directly
+
+```bash
+# Run via the CLI module (with dependency checks)
+uv run -m s2t.cli popup
+uv run -m s2t.cli silent
+uv run -m s2t.cli immediate
+uv run -m s2t.cli headless
+
+# With options
+uv run -m s2t.cli popup -- --threshold 0.03 --duration 1.5
+```
+
+### 6. Install a wrapper script
 
 ```bash
 # Install a wrapper script to ~/.local/bin

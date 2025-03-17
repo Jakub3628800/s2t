@@ -1,4 +1,4 @@
-.PHONY: install dev-install clean test build run run-local-popup run-local-silent run-local-immediate run-local-headless test-local-popup test-local-silent test-local-immediate test-local-headless test-all-local check-deps test-minimal test-structure run-minimal run-tool run-install-tool run-wrapper-tool install-wrapper-tool run-uvx run-from-git
+.PHONY: install dev-install clean test build run run-local-popup run-local-silent run-local-immediate run-local-headless test-local-popup test-local-silent test-local-immediate test-local-headless test-all-local check-deps test-minimal test-structure run-minimal run-tool run-install-tool run-wrapper-tool install-wrapper-tool run-uvx run-from-git run-from-git-popup run-from-git-silent run-from-git-immediate run-from-git-headless run-cli-popup run-cli-silent run-cli-immediate run-cli-headless
 
 # Default Python interpreter
 PYTHON ?= python3
@@ -46,7 +46,7 @@ run-from-git:
 		echo "Using local wrapper for testing the GitHub approach..."; \
 		uv run s2t_tool.py $(ARGS); \
 	else \
-		uvx --from "git+https://github.com/Jakub3628800/s2t.git" s2t-immediate $(ARGS) || { \
+		uvx --from "git+https://github.com/Jakub3628800/s2t.git" s2t-popup $(ARGS) || { \
 			echo ""; \
 			echo "Error: Direct GitHub execution failed. Try:"; \
 			echo "1. Install system dependencies: sudo apt-get install libgirepository1.0-dev libgtk-4-dev"; \
@@ -54,6 +54,40 @@ run-from-git:
 			exit 1; \
 		}; \
 	fi
+
+# Run with different entry points directly from GitHub
+run-from-git-popup:
+	@echo "Running s2t-popup directly from GitHub repository..."
+	uvx --from "git+https://github.com/Jakub3628800/s2t.git" s2t-popup $(ARGS)
+
+run-from-git-silent:
+	@echo "Running s2t-silent directly from GitHub repository..."
+	uvx --from "git+https://github.com/Jakub3628800/s2t.git" s2t-silent $(ARGS)
+
+run-from-git-immediate:
+	@echo "Running s2t-immediate directly from GitHub repository..."
+	uvx --from "git+https://github.com/Jakub3628800/s2t.git" s2t-immediate $(ARGS)
+
+run-from-git-headless:
+	@echo "Running s2t-headless directly from GitHub repository..."
+	uvx --from "git+https://github.com/Jakub3628800/s2t.git" s2t-headless $(ARGS)
+
+# Run directly with CLI module
+run-cli-popup:
+	@echo "Running s2t-popup via CLI module..."
+	uv run -m s2t.cli popup $(ARGS)
+
+run-cli-silent:
+	@echo "Running s2t-silent via CLI module..."
+	uv run -m s2t.cli silent $(ARGS)
+
+run-cli-immediate:
+	@echo "Running s2t-immediate via CLI module..."
+	uv run -m s2t.cli immediate $(ARGS)
+
+run-cli-headless:
+	@echo "Running s2t-headless via CLI module..."
+	uv run -m s2t.cli headless $(ARGS)
 
 # Check for system dependencies
 check-deps:
@@ -199,6 +233,14 @@ help:
 	@echo "  install-wrapper-tool  Install just the wrapper tool"
 	@echo "  run-uvx              Run s2t with uvx"
 	@echo "  run-from-git         Run s2t directly from GitHub repository"
+	@echo "  run-from-git-popup   Run s2t-popup directly from GitHub repository"
+	@echo "  run-from-git-silent   Run s2t-silent directly from GitHub repository"
+	@echo "  run-from-git-immediate Run s2t-immediate directly from GitHub repository"
+	@echo "  run-from-git-headless Run s2t-headless directly from GitHub repository"
+	@echo "  run-cli-popup        Run s2t-popup via CLI module"
+	@echo "  run-cli-silent       Run s2t-silent via CLI module"
+	@echo "  run-cli-immediate    Run s2t-immediate via CLI module"
+	@echo "  run-cli-headless     Run s2t-headless via CLI module"
 	@echo "  help            Show this help message"
 	@echo ""
 	@echo "Variables:"
