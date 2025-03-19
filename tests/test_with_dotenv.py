@@ -14,7 +14,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from s2t.audio import AudioRecorder
 from s2t.backends import get_backend
 from s2t.config import DEFAULT_CONFIG_PATH, load_config
-from s2t.utils import load_dotenv
 
 # Set up logging
 logging.basicConfig(
@@ -25,10 +24,6 @@ logger = logging.getLogger(__name__)
 
 def main():
     """Test audio recording and transcription with API key from .env file."""
-    # Load environment variables from .env file
-    if not load_dotenv():
-        logger.warning("Failed to load .env file, checking for existing API key...")
-
     # Check if API key is set
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
