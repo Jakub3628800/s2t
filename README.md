@@ -313,11 +313,18 @@ You can run S2T using UV's tool features in several ways:
 # Install system dependencies (REQUIRED)
 sudo apt-get install libgirepository1.0-dev libgtk-4-dev wtype
 
-# Then run directly from GitHub (system dependency checks included):
-uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-popup
+# Then run directly from GitHub:
+
+# For silent mode (works even without system dependencies):
 uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-silent
+
+# For GUI modes (requires system dependencies):
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-popup
 uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-immediate
 uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-headless
+
+# Main command (auto-detects available dependencies):
+uvx --from git+https://github.com/Jakub3628800/s2t.git s2t
 
 # With options
 uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-popup --threshold 0.03 --duration 1.5

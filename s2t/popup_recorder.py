@@ -577,8 +577,44 @@ class PopupRecorder:
         sys.exit(0)
 
 
+def check_system_dependencies():
+    """Check if required system dependencies are installed."""
+    missing_deps = []
+    
+    # Check for libgirepository (for GUI mode)
+    try:
+        subprocess.run(["pkg-config", "--exists", "gobject-introspection-1.0"], 
+                      check=True, capture_output=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        missing_deps.append("libgirepository1.0-dev")
+    
+    # Check for GTK4 (for popup mode)
+    try:
+        subprocess.run(["pkg-config", "--exists", "gtk4"], 
+                      check=True, capture_output=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        missing_deps.append("libgtk-4-dev")
+    
+    return missing_deps
+
+def print_dependency_warning(missing_deps):
+    """Print a warning about missing dependencies."""
+    print("\n⚠️  Missing system dependencies detected! ⚠️")
+    print("The following system packages are required but not found:")
+    for dep in missing_deps:
+        print(f"  - {dep}")
+    print("\nOn Ubuntu/Debian, install them with:")
+    print(f"  sudo apt-get install {' '.join(missing_deps)}")
+    print("\nCannot continue without these dependencies.\n")
+
 def main():
     """Command-line entry point."""
+    # Check system dependencies
+    missing_deps = check_system_dependencies()
+    if missing_deps:
+        print_dependency_warning(missing_deps)
+        sys.exit(1)
+        
     # Parse arguments
     args = parser.parse_args()
 

@@ -9,17 +9,20 @@ dependencies = [
     "pyyaml>=6.0",
     "pytest>=7.0.0",
     "numpy>=1.26.0",
-    "pygobject>=3.42.0",
-    "pycairo>=1.20.0",
     "pyaudio>=0.2.13",
 ]
 license = {text = "MIT"}
 
-# Keep empty optional dependencies sections for backward compatibility
 [project.optional-dependencies]
-gui = []
+gui = [
+    "pygobject>=3.42.0",
+    "pycairo>=1.20.0",
+]
 audio = []
-full = []
+full = [
+    "pygobject>=3.42.0",
+    "pycairo>=1.20.0",
+]
 
 [project.scripts]
 s2t = "s2t.main:main"
@@ -31,10 +34,10 @@ s2t-headless = "s2t.headless_recorder:main"
 # Define s2t as a UV tool
 [project.entry-points."uv.commands"]
 s2t = "s2t.main:main"
-s2t-popup = "s2t.popup_recorder:main"
+s2t-popup = "s2t.main:main"  # Fallback to main with GUI detection
 s2t-silent = "s2t.truly_silent:main"
-s2t-immediate = "s2t.immediate_popup:main"
-s2t-headless = "s2t.headless_recorder:main"
+s2t-immediate = "s2t.main:main"  # Fallback to main with GUI detection
+s2t-headless = "s2t.truly_silent:main"  # Fallback to silent mode
 
 [build-system]
 requires = ["setuptools>=61.0"]

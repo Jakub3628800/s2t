@@ -9,6 +9,7 @@ import argparse
 import logging
 import os
 import signal
+import subprocess
 import sys
 import threading
 import time
@@ -21,9 +22,12 @@ warnings.filterwarnings("ignore")
 logging.disable(logging.CRITICAL)
 
 # Import gi and set the required version
-import gi
-
-gi.require_version("Gtk", "4.0")
+try:
+    import gi
+    gi.require_version("Gtk", "4.0")
+    GUI_AVAILABLE = True
+except (ImportError, ValueError):
+    GUI_AVAILABLE = False
 
 # Import our modules
 from s2t.audio import AudioRecorder
@@ -130,8 +134,40 @@ class TrulySilentRecorder:
         sys.exit(0)
 
 
+def check_system_dependencies():
+    """Check if required system dependencies are installed."""
+    missing_deps = []
+    
+    # Check for libgirepository (required for all modes)
+    try:
+        subprocess.run(["pkg-config", "--exists", "gobject-introspection-1.0"], 
+                      check=True, capture_output=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        missing_deps.append("libgirepository1.0-dev")
+    
+    return missing_deps
+
+def print_dependency_warning(missing_deps):
+    """Print a warning about missing dependencies."""
+    print("\n⚠️  Missing system dependencies detected! ⚠️")
+    print("The following system packages are required but not found:")
+    for dep in missing_deps:
+        print(f"  - {dep}")
+    print("\nOn Ubuntu/Debian, install them with:")
+    print(f"  sudo apt-get install {' '.join(missing_deps)}")
+    print("\nCannot continue without these dependencies.\n")
+
 def main():
     """Main entry point for the truly silent recorder."""
+    # Only check dependencies if GUI is available
+    if GUI_AVAILABLE:
+        missing_deps = check_system_dependencies()
+        if missing_deps:
+            print_dependency_warning(missing_deps)
+            print("Note: S2T can still run in minimal mode without these dependencies.")
+    else:
+        print("Running in minimal mode without GUI dependencies.")
+        
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="S2T Truly Silent CLI")
     parser.add_argument(

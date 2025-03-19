@@ -8,6 +8,7 @@ This module provides a recorder that runs without a GUI but shows desktop notifi
 import argparse
 import logging
 import os
+import subprocess
 import sys
 import tempfile
 
@@ -37,8 +38,44 @@ def show_notification(title, message, urgency="low"):
         logger.error(f"Failed to show notification: {e}")
 
 
+def check_system_dependencies():
+    """Check if required system dependencies are installed."""
+    missing_deps = []
+    
+    # Check for libgirepository (for GUI mode)
+    try:
+        subprocess.run(["pkg-config", "--exists", "gobject-introspection-1.0"], 
+                      check=True, capture_output=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        missing_deps.append("libgirepository1.0-dev")
+    
+    # Check for libnotify
+    try:
+        subprocess.run(["pkg-config", "--exists", "libnotify"], 
+                      check=True, capture_output=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        missing_deps.append("libnotify-dev")
+    
+    return missing_deps
+
+def print_dependency_warning(missing_deps):
+    """Print a warning about missing dependencies."""
+    print("\n⚠️  Missing system dependencies detected! ⚠️")
+    print("The following system packages are required but not found:")
+    for dep in missing_deps:
+        print(f"  - {dep}")
+    print("\nOn Ubuntu/Debian, install them with:")
+    print(f"  sudo apt-get install {' '.join(missing_deps)}")
+    print("\nCannot continue without these dependencies.\n")
+
 def main():
     """Command-line entry point."""
+    # Check system dependencies
+    missing_deps = check_system_dependencies()
+    if missing_deps:
+        print_dependency_warning(missing_deps)
+        sys.exit(1)
+        
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Headless recorder with notification support")
     parser.add_argument("--output", type=str, help="Output file for transcription")
