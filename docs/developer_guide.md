@@ -52,8 +52,7 @@ s2t/
 │   ├── headless_recorder.py  # Headless recorder implementation
 │   ├── immediate_popup.py    # Immediate popup recorder
 │   ├── popup_recorder.py     # Popup recorder implementation
-│   ├── truly_silent.py       # Truly silent recorder
-│   └── utils.py       # Utility functions
+│   └── truly_silent.py       # Truly silent recorder
 ├── tests/             # Test suite
 ├── docs/              # Documentation
 ├── s2t-popup-silent.sh # Convenience script for popup recorder
@@ -101,12 +100,6 @@ S2T provides several recorder implementations:
 - `TrulySilentRecorder`: Recorder without any GUI or notifications
 - `HeadlessRecorder`: Recorder without GUI but with desktop notifications
 
-### Utils Module
-
-The `utils` module provides utility functions used throughout the application, such as:
-
-- `load_dotenv`: Function to load environment variables from a .env file
-- `get_temp_filename`: Function to generate a temporary filename
 
 ## Testing
 

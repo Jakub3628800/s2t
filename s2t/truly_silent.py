@@ -29,7 +29,6 @@ gi.require_version("Gtk", "4.0")
 from s2t.audio import AudioRecorder
 from s2t.backends import get_backend
 from s2t.config import DEFAULT_CONFIG_PATH, load_config
-from s2t.utils import load_dotenv
 
 
 class TrulySilentRecorder:
@@ -162,8 +161,7 @@ def main():
     os.close(devnull)
 
     try:
-        # Load environment variables from .env file
-        load_dotenv(args.env_file)
+        # Environment variables loaded automatically
 
         # Load configuration
         config = load_config(args.config)

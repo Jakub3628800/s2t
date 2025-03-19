@@ -9,7 +9,6 @@ This document provides detailed information about the public API of S2T.
 3. [Configuration Module](#configuration-module)
 4. [Popup Recorder Module](#popup-recorder-module)
 5. [Truly Silent Module](#truly-silent-module)
-6. [Utils Module](#utils-module)
 
 ## Audio Module
 
@@ -285,38 +284,3 @@ Records audio and transcribes it.
 
 - `duration`: Recording duration in seconds (default: 5.0).
 - Returns: The transcribed text, or `None` if recording or transcription failed.
-
-## Utils Module
-
-The utils module provides utility functions used throughout the application.
-
-### `load_dotenv`
-
-```python
-from s2t.utils import load_dotenv
-```
-
-```python
-load_dotenv(dotenv_path='.env')
-```
-
-Loads environment variables from a .env file.
-
-- `dotenv_path`: Path to the .env file (default: .env).
-- Returns: `True` if the .env file was loaded successfully, `False` otherwise.
-
-### `get_temp_filename`
-
-```python
-from s2t.utils import get_temp_filename
-```
-
-```python
-get_temp_filename(prefix='s2t_', suffix='.wav')
-```
-
-Generates a temporary filename.
-
-- `prefix`: Prefix for the temporary filename (default: 's2t_').
-- `suffix`: Suffix for the temporary filename (default: '.wav').
-- Returns: Path to the temporary file.

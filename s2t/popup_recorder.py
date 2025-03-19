@@ -25,7 +25,6 @@ from gi.repository import GLib, Gtk
 from s2t.audio import AudioRecorder  # noqa: E402
 from s2t.backends import get_backend  # noqa: E402
 from s2t.config import DEFAULT_CONFIG_PATH, load_config  # noqa: E402
-from s2t.utils import load_dotenv  # noqa: E402
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description="Record audio and transcribe it with a popup window.")
@@ -583,9 +582,8 @@ def main():
     # Parse arguments
     args = parser.parse_args()
 
-    # Load environment variables from .env file
-    if load_dotenv(args.env_file):
-        logger.info(f"Loaded environment variables from {args.env_file}")
+    # Check for environment variables
+    logger.info(f"Using env file: {args.env_file} (parsed automatically)")
 
     # Load configuration
     config = load_config(args.config)

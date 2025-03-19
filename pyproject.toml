@@ -23,18 +23,18 @@ full = []
 
 [project.scripts]
 s2t = "s2t.main:main"
-s2t-popup = "s2t.cli:run_popup"
-s2t-silent = "s2t.cli:run_silent"
-s2t-immediate = "s2t.cli:run_immediate"
-s2t-headless = "s2t.cli:run_headless"
+s2t-popup = "s2t.popup_recorder:main"
+s2t-silent = "s2t.truly_silent:main"
+s2t-immediate = "s2t.immediate_popup:main"
+s2t-headless = "s2t.headless_recorder:main"
 
 # Define s2t as a UV tool
 [project.entry-points."uv.commands"]
 s2t = "s2t.main:main"
-s2t-popup = "s2t.cli:run_popup"
-s2t-silent = "s2t.cli:run_silent"
-s2t-immediate = "s2t.cli:run_immediate"
-s2t-headless = "s2t.cli:run_headless"
+s2t-popup = "s2t.popup_recorder:main"
+s2t-silent = "s2t.truly_silent:main"
+s2t-immediate = "s2t.immediate_popup:main"
+s2t-headless = "s2t.headless_recorder:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]

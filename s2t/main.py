@@ -37,7 +37,6 @@ import re
 import shutil
 import subprocess
 import sys
-from pathlib import Path
 
 # Import S2T modules directly
 from s2t.config import DEFAULT_CONFIG_PATH, load_config
@@ -142,4 +141,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

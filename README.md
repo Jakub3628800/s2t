@@ -293,7 +293,6 @@ Or in the convenience script:
   - `truly_silent.py`: Basic silent recorder implementation
   - `headless_recorder.py`: Headless recorder with notifications
   - `config.py`: Configuration management
-  - `utils.py`: Utility functions
   - `audio/`: Audio recording and processing
   - `backends/`: Speech-to-text backend implementations
 
@@ -312,7 +311,7 @@ You can run S2T using UV's tool features in several ways:
 
 ```bash
 # Install system dependencies (REQUIRED)
-sudo apt-get install libgirepository1.0-dev libgtk-4-dev wtype 
+sudo apt-get install libgirepository1.0-dev libgtk-4-dev wtype
 
 # Then run directly from GitHub (system dependency checks included):
 uvx --from git+https://github.com/Jakub3628800/s2t.git s2t-popup
@@ -367,28 +366,16 @@ make run-uvx        # Using uv run -m s2t.main
 make run-from-git   # Run directly from Git repository
 
 # Run specific entry points
-make run-cli-popup       # Run popup recorder via CLI module
-make run-cli-silent      # Run silent recorder via CLI module
-make run-cli-immediate   # Run immediate popup recorder via CLI module
-make run-cli-headless    # Run headless recorder via CLI module
+make run-popup       # Run popup recorder directly
+make run-silent      # Run silent recorder directly
+make run-immediate   # Run immediate popup recorder directly
+make run-headless    # Run headless recorder directly
 
 # Run with additional options
 make run-tool ARGS="--silent"
-make run-cli-popup ARGS="--threshold 0.03 --duration 1.5"
+make run-popup ARGS="--threshold 0.03 --duration 1.5"
 ```
 
-### 5. Using the CLI module directly
-
-```bash
-# Run via the CLI module (with dependency checks)
-uv run -m s2t.cli popup
-uv run -m s2t.cli silent
-uv run -m s2t.cli immediate
-uv run -m s2t.cli headless
-
-# With options
-uv run -m s2t.cli popup -- --threshold 0.03 --duration 1.5
-```
 
 ### 6. Install a wrapper script
 

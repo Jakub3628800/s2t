@@ -18,7 +18,6 @@ from gi.repository import Notify
 
 from s2t.config import DEFAULT_CONFIG_PATH, load_config
 from s2t.truly_silent import TrulySilentRecorder
-from s2t.utils import load_dotenv
 
 # Set up logging
 logging.basicConfig(
@@ -82,9 +81,8 @@ def main():
         stream=sys.stderr,
     )
 
-    # Load environment variables from .env file
-    if load_dotenv(args.env_file):
-        logger.info(f"Loaded environment variables from {args.env_file}")
+    # Check for environment variables
+    logger.info(f"Using env file: {args.env_file} (parsed automatically)")
 
     # Load configuration
     config = load_config(DEFAULT_CONFIG_PATH)
