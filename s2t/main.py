@@ -258,6 +258,9 @@ def main():
     if transcription and transcription != "0 characters":
         logger.info(f"Transcription: {transcription}")
 
+        # Print the transcription to stdout
+        print(f"Transcription: {transcription}")
+
         # Add newline if requested
         if args.newline:
             transcription += "\n"
@@ -265,7 +268,9 @@ def main():
 
         subprocess.run(["wtype", transcription])
     else:
+        # Log at INFO level when transcription is empty
         logger.info("No speech detected or transcription was empty")
+        print("No speech detected or transcription was empty")
         if args.debug:
             logger.debug("No transcription returned from recorder")
 
