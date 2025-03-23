@@ -31,16 +31,14 @@ Examples:
   s2t --duration 1.5      # Set custom silence duration
 """
 
-import argparse
 import logging
 import os
 import re
-import shutil
 import subprocess
 import sys
 
-# Import config directly
-from s2t.config import DEFAULT_CONFIG_PATH, load_config
+# Import config functions
+from s2t.config import get_validated_config, send_notification
 
 # Configure logger
 logger = logging.getLogger("s2t")
@@ -116,131 +114,47 @@ def print_dependency_warning(missing_deps):
     logger.warning("\nCannot continue without these dependencies.\n")
 
 
-def setup_logging(debug=False):
-    """Configure the logging system based on debug flag."""
-    log_level = logging.DEBUG if debug else logging.INFO
-
-    # Configure root logger
-    logging.basicConfig(
-        level=log_level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
-    # Configure s2t logger
-    logger.setLevel(log_level)
-
-    # Add console handler if not already present
-    if not logger.handlers:
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(log_level)
-        formatter = logging.Formatter("%(levelname)s: %(message)s")
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-
 def main():
     """Main function to run the script."""
-    # Parse command-line arguments
-    parser = argparse.ArgumentParser(
-        description="S2T (Speech to Text) - A command-line tool for speech recognition",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    parser.add_argument("--silent", action="store_true", help="Use silent mode (no GUI window)")
-    parser.add_argument(
-        "--newline", action="store_true", help="Add a newline character after the transcription"
-    )
-    parser.add_argument(
-        "--threshold", type=float, default=0.05, help="Silence threshold (0.0-1.0, default: 0.05)"
-    )
-    parser.add_argument(
-        "--duration", type=float, default=2.0, help="Silence duration in seconds (default: 2.0)"
-    )
-    parser.add_argument("--debug", action="store_true", help="Enable debug output")
-    parser.add_argument(
-        "--config",
-        type=str,
-        default=DEFAULT_CONFIG_PATH,
-        help=f"Path to configuration file (YAML or JSON, default: {DEFAULT_CONFIG_PATH})",
-    )
-    args = parser.parse_args()
+    try:
+        # Get and validate configuration
+        config = get_validated_config()
 
-    # Setup logging based on debug flag
-    setup_logging(args.debug)
+        # Determine which recorder to use based on mode and available dependencies
+        if config.cli.silent or not gui_available:
+            # Silent mode - use TrulySilentRecorder
+            if silent_recorder_class is None:
+                # Last attempt to import if not available at module level
+                try:
+                    from s2t.truly_silent import TrulySilentRecorder
 
-    # Validate the config file extension
-    if args.config:
-        if not os.path.exists(args.config):
-            # This will create a default config at the specified path
-            logger.info(f"Config file not found, will create a default config at: {args.config}")
-        # Ensure the config file has a valid extension
-        elif not args.config.endswith((".yaml", ".yml", ".json")):
-            logger.warning(
-                f"Config file should have .yaml, .yml, or .json extension. Found: {args.config}"
-            )
-            logger.warning("Will attempt to load it anyway, assuming YAML format.")
+                    recorder_class = TrulySilentRecorder
+                except ImportError:
+                    logger.error("Could not import TrulySilentRecorder")
+                    sys.exit(1)
+            else:
+                recorder_class = silent_recorder_class
+            recorder = recorder_class(config)
+        else:
+            # Popup mode (default) - use ImmediatePopupRecorder
+            if popup_recorder_class is None:
+                # Last attempt to import if not available at module level
+                try:
+                    from s2t.immediate_popup import ImmediatePopupRecorder
 
-    # Load configuration from specified path
-    config = load_config(args.config)
-
-    # Check for OpenAI API key in environment variables
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        logger.error("OPENAI_API_KEY environment variable not set.")
-        # Use full path for notify-send
-        notify_send_path = shutil.which("notify-send")
-        if notify_send_path:
-            subprocess.run(
-                [
-                    notify_send_path,
-                    "-u",
-                    "critical",
-                    "S2T Error",
-                    "OPENAI_API_KEY environment variable not set.",
-                ],
-                check=False,
-            )
+                    recorder_class = ImmediatePopupRecorder
+                except ImportError:
+                    logger.error("Could not import ImmediatePopupRecorder")
+                    sys.exit(1)
+            else:
+                recorder_class = popup_recorder_class
+            recorder = recorder_class(config)
+    except ValueError as e:
+        # Handle configuration errors (like missing API key)
+        logger.error(str(e))
+        # Send a notification about the error
+        send_notification("S2T Error", str(e), urgency="critical")
         sys.exit(1)
-
-    # Set the API key in the config
-    config.backends.whisper_api.api_key = api_key
-
-    # Override config with command-line arguments if provided
-    if args.threshold:
-        config.popup_recorder.silence_threshold = args.threshold
-    if args.duration:
-        config.popup_recorder.silence_duration = args.duration
-    config.popup_recorder.vad_enabled = True
-
-    # Determine which recorder to use based on mode and available dependencies
-    if args.silent or not gui_available:
-        # Silent mode - use TrulySilentRecorder
-        if silent_recorder_class is None:
-            # Last attempt to import if not available at module level
-            try:
-                from s2t.truly_silent import TrulySilentRecorder
-
-                recorder_class = TrulySilentRecorder
-            except ImportError:
-                logger.error("Could not import TrulySilentRecorder")
-                sys.exit(1)
-        else:
-            recorder_class = silent_recorder_class
-        recorder = recorder_class(config)
-    else:
-        # Popup mode (default) - use ImmediatePopupRecorder
-        if popup_recorder_class is None:
-            # Last attempt to import if not available at module level
-            try:
-                from s2t.immediate_popup import ImmediatePopupRecorder
-
-                recorder_class = ImmediatePopupRecorder
-            except ImportError:
-                logger.error("Could not import ImmediatePopupRecorder")
-                sys.exit(1)
-        else:
-            recorder_class = popup_recorder_class
-        recorder = recorder_class(config)
 
     # Record and transcribe
     transcription = recorder.record_and_transcribe()
@@ -262,7 +176,7 @@ def main():
         print(f"Transcription: {transcription}")
 
         # Add newline if requested
-        if args.newline:
+        if config.cli.newline:
             transcription += "\n"
             logger.debug("Adding newline character")
 
@@ -271,7 +185,7 @@ def main():
         # Log at INFO level when transcription is empty
         logger.info("No speech detected or transcription was empty")
         print("No speech detected or transcription was empty")
-        if args.debug:
+        if config.cli.debug:
             logger.debug("No transcription returned from recorder")
 
     # Clean up the temporary audio file

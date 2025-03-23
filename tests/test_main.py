@@ -246,9 +246,9 @@ class MockImmediatePopupRecorder(MockPopupRecorder):
 @patch("s2t.main.os.path.exists")
 @patch("s2t.main.os.environ.get")
 @patch("s2t.main.subprocess.run")
-@patch("s2t.main.load_config")
+@patch("s2t.config.get_validated_config")
 def test_temp_file_cleanup_popup_mode(
-    mock_load_config,
+    mock_get_validated_config,
     mock_subprocess_run,
     mock_environ_get,
     mock_path_exists,
@@ -261,7 +261,7 @@ def test_temp_file_cleanup_popup_mode(
     # Configure mocks
     mock_path_exists.return_value = True
     mock_environ_get.return_value = "test_api_key"
-    mock_load_config.return_value = mock_config
+    mock_get_validated_config.return_value = mock_config
 
     # Return a mock for OpenAI client
     mock_openai.return_value = MagicMock()
@@ -296,11 +296,11 @@ def test_temp_file_cleanup_popup_mode(
 @patch("s2t.main.os.path.exists")
 @patch("openai.OpenAI")
 @patch("s2t.backends.get_backend")
-@patch("s2t.main.load_config")
+@patch("s2t.config.get_validated_config")
 @patch("s2t.main.TrulySilentRecorder")
 def test_temp_file_cleanup_silent_mode(
     mock_recorder_class,
-    mock_load_config,
+    mock_get_validated_config,
     mock_get_backend,
     mock_openai,
     mock_path_exists,
@@ -330,7 +330,7 @@ def test_temp_file_cleanup_silent_mode(
     # Setup the mock config
     mock_config = MagicMock()
     mock_config.backends.default = "whisper_api"
-    mock_load_config.return_value = mock_config
+    mock_get_validated_config.return_value = mock_config
 
     # Mock path.exists to return True
     mock_path_exists.return_value = True
@@ -362,9 +362,9 @@ def test_temp_file_cleanup_silent_mode(
 @patch("s2t.main.os.path.exists")
 @patch("s2t.main.os.environ.get")
 @patch("s2t.main.subprocess.run")
-@patch("s2t.main.load_config")
+@patch("s2t.config.get_validated_config")
 def test_temp_file_nonexistent(
-    mock_load_config,
+    mock_get_validated_config,
     mock_subprocess_run,
     mock_environ_get,
     mock_path_exists,
@@ -373,16 +373,15 @@ def test_temp_file_nonexistent(
     mock_exit,
     mock_config,
 ):
-    """Test that the cleanup code handles the case where the audio file doesn't exist."""
+    """Test that a nonexistent audio file doesn't cause errors."""
     # Configure mocks
+    # File doesn't exist, so no removal should happen
+    mock_path_exists.return_value = False
     mock_environ_get.return_value = "test_api_key"
-    mock_load_config.return_value = mock_config
+    mock_get_validated_config.return_value = mock_config
 
     # Return a mock for OpenAI client
     mock_openai.return_value = MagicMock()
-
-    # Path exists will return True for config file check, but False for audio file check
-    mock_path_exists.side_effect = lambda path: False if path.endswith(".wav") else True
 
     # Patch the imports to return our mock recorder
     with patch.dict(

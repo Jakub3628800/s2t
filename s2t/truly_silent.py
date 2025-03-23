@@ -37,7 +37,7 @@ except (ImportError, ValueError):
 # Import our modules
 from s2t.audio import AudioRecorder
 from s2t.backends import get_backend
-from s2t.config import DEFAULT_CONFIG_PATH, S2TConfig, load_config
+from s2t.config import DEFAULT_CONFIG_PATH, S2TConfig, load_config, send_notification
 
 
 class TrulySilentRecorder:
@@ -273,6 +273,13 @@ def main():
             # Set the API key in the Pydantic config
             config.backends.whisper_api.api_key = api_key
 
+        # Make sure we have an API key
+        if not config.backends.whisper_api.api_key:
+            error_msg = "OPENAI_API_KEY environment variable not set and not found in config file."
+            logger.error(error_msg)
+            send_notification("S2T Error", error_msg, urgency="critical")
+            return 1
+
         # Create recorder
         recorder = TrulySilentRecorder(config)
 
@@ -284,7 +291,9 @@ def main():
             logger.info(text)
             return 0
         else:
-            logger.error("Failed to transcribe audio")
+            error_msg = "Failed to transcribe audio"
+            logger.error(error_msg)
+            send_notification("S2T Error", error_msg, urgency="normal")
             return 1
 
     finally:
