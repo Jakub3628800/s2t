@@ -19,7 +19,7 @@ from typing import Any
 import gi
 import numpy as np  # Add NumPy import
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import GLib, Gtk
 

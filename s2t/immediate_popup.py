@@ -15,7 +15,7 @@ from collections.abc import Callable
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from s2t.config import DEFAULT_CONFIG_PATH, load_config
 from s2t.popup_recorder import PopupRecorder, RecordingWindow
 

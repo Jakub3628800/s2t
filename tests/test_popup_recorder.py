@@ -15,7 +15,7 @@ sys.argv = ["popup_recorder"]
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 
 from s2t.config import BackendsConfig, PopupRecorderConfig, S2TConfig, WhisperAPIConfig
 from s2t.popup_recorder import PopupRecorder

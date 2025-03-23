@@ -50,7 +50,7 @@ gui_available = False
 try:
     import gi
 
-    gi.require_version("Gtk", "3.0")
+    gi.require_version("Gtk", "4.0")
     # We don't need to import Gtk directly, just ensure gi is available
     import gi.repository
 
