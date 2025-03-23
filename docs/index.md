@@ -4,7 +4,7 @@ Welcome to the S2T documentation. This documentation provides information about 
 
 ## What is S2T?
 
-S2T is a desktop application for Linux that records speech and converts it to text using OpenAI's Whisper API. It provides both GUI and headless modes for flexible usage.
+S2T is a desktop application for Linux that records speech and converts it to text using OpenAI's Whisper API. It provides both GUI and command-line modes for flexible usage.
 
 ## Documentation Sections
 
@@ -19,20 +19,36 @@ S2T is a desktop application for Linux that records speech and converts it to te
   - Voice activity detection (VAD) for automatic recording stop
   - Audio level visualization
   - Customizable silence detection settings
-  - Immediate recording mode (starts recording as soon as the window opens)
-  - Silent mode for clean output
+  - Immediate recording mode
+  - GTK 4 based interface
 
-- **Headless Mode**: A terminal-based version without any GUI
+- **Silent Mode**: A command-line version without any GUI
   - Perfect for scripts and automation
   - Minimal dependencies
   - Clean output for piping to other commands
-  - Desktop notifications support
+  - Desktop notification support
 
-- **Convenience Scripts**:
-  - `s2t-popup-silent.sh`: Optimized popup recorder that starts recording immediately
-  - `s2t-silent.sh`: Headless recorder for terminal usage
+- **Convenience Script**:
+  - `speaktype.sh`: One-click recording and typing
 
 ## Installation
+
+### Prerequisites
+
+- Python 3.12 or higher
+- GTK 4
+- PyAudio
+- OpenAI API key
+- `wtype` (for automatic typing of transcribed text)
+
+### Install System Dependencies
+
+```bash
+# For Ubuntu/Debian
+sudo apt-get install libgirepository1.0-dev libgtk-4-dev wtype
+```
+
+### Install S2T
 
 ```bash
 # Clone the repository
@@ -49,16 +65,22 @@ pip install -e .
 
 ## Basic Usage
 
-### Popup Recorder
+### Popup Mode (Default)
 
 ```bash
-s2t-popup
+s2t
 ```
 
-### Headless Mode
+### Silent Mode
 
 ```bash
-s2t-silent
+s2t --silent
+```
+
+### Using make
+
+```bash
+make run
 ```
 
 ## License

@@ -7,10 +7,18 @@ This guide will help you get started with S2T quickly.
 ### Prerequisites
 
 - Python 3.12 or higher
-- GTK 4 (for popup mode)
+- GTK 4 (required for popup mode)
 - PyAudio
 - OpenAI API key
 - `wtype` (for automatic typing of transcribed text)
+
+### Install System Dependencies
+
+For Ubuntu/Debian systems:
+
+```bash
+sudo apt-get install libgirepository1.0-dev libgtk-4-dev wtype
+```
 
 ### Install from Source
 
@@ -31,7 +39,12 @@ pip install -e .
 
 To use the Whisper API backend, you need to set your OpenAI API key:
 
-### Option 1: Edit the config file
+### Option 1: Environment Variable (Recommended)
+```bash
+export OPENAI_API_KEY='your-api-key-here'
+```
+
+### Option 2: Edit the Config File
 ```bash
 # Create the default config if it doesn't exist
 python -m s2t.config
@@ -47,12 +60,7 @@ backends:
     api_key: 'your-api-key-here'
 ```
 
-### Option 2: Set environment variable
-```bash
-export OPENAI_API_KEY='your-api-key-here'
-```
-
-### Option 3: Create a .env file
+### Option 3: Create a .env File
 Create a file named `.env` in the project root:
 ```
 OPENAI_API_KEY=your-api-key-here
@@ -60,43 +68,68 @@ OPENAI_API_KEY=your-api-key-here
 
 ## Basic Usage
 
-### Popup Recorder
+### Standard Mode (Popup)
 
-The popup recorder provides a graphical interface for recording audio and converting it to text.
+The default mode provides a graphical interface for recording audio and converting it to text:
 
 ```bash
-# Standard popup recorder with voice activity detection
-s2t-popup
+# Using the main command
+s2t
 
-# Immediate popup recorder (starts recording immediately)
-s2t-immediate
+# Using make run
+make run
+
+# With parameters
+s2t --threshold 0.03 --duration 1.5
 ```
 
-### Headless Recorder
+This will open a window with recording controls. After you speak and stop the recording, the transcribed text will be typed at your cursor position.
 
-The headless recorder runs without a GUI, making it suitable for scripts and automation.
+### Silent Mode
+
+For command-line usage without a GUI:
 
 ```bash
-# Headless recorder with notifications
-s2t-headless
-
-# Truly silent recorder (no GUI, no notifications)
-s2t-silent
+s2t --silent
 ```
 
-### Convenience Scripts
+### Add Newline
 
-The repository includes two convenience scripts that can be used directly or installed to your PATH:
+To add a newline character after the transcription:
 
 ```bash
-# Copy the scripts to your bin directory
-cp s2t-popup-silent.sh ~/bin/s2t-popup-silent
-cp s2t-silent.sh ~/bin/s2t-silent
-chmod +x ~/bin/s2t-popup-silent ~/bin/s2t-silent
+s2t --newline
+```
+
+### Debug Mode
+
+Enable verbose logging to help troubleshoot issues:
+
+```bash
+s2t --debug
+```
+
+## Using the Convenience Script
+
+S2T comes with a convenience script that can be used directly or added to your PATH:
+
+```bash
+# Run directly
+./speaktype.sh
+
+# Or copy to your bin directory and make executable
+cp speaktype.sh ~/bin/speaktype
+chmod +x ~/bin/speaktype
 
 # Add ~/bin to your PATH if not already there
 echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc  # or ~/.zshrc
 source ~/.bashrc  # or ~/.zshrc
+```
+
+Then you can simply type:
+
+```bash
+speaktype
 ```
 
 ## Configuration Options
@@ -105,17 +138,50 @@ source ~/.bashrc  # or ~/.zshrc
 
 You can customize the silence detection parameters:
 
-- `silence_threshold`: Threshold for silence detection (0.0-1.0, default: 0.1)
-- `silence_duration`: Duration of silence before stopping (seconds, default: 5.0)
+- `--threshold`: Threshold for silence detection (0.0-1.0, default: 0.05)
+- `--duration`: Duration of silence before stopping (seconds, default: 2.0)
 
 Example:
 ```bash
-s2t-popup --silence-threshold 0.05 --silence-duration 3.0
+s2t --threshold 0.03 --duration 1.5
 ```
 
-Or in the convenience script:
+### Custom Configuration File
+
+You can specify a custom configuration file:
+
 ```bash
-./s2t-popup-silent.sh  # Uses 0.05 threshold and 3.0 seconds by default
+s2t --config /path/to/your/config.yaml
+```
+
+## Common Issues and Solutions
+
+### Missing Dependencies
+
+If you encounter errors about missing GTK or other dependencies:
+
+```bash
+sudo apt-get install libgirepository1.0-dev libgtk-4-dev wtype
+```
+
+### OpenAI API Key
+
+If transcription fails with API errors, check your API key:
+
+```bash
+echo $OPENAI_API_KEY
+```
+
+### Audio Issues
+
+If you experience audio recording problems, try:
+
+```bash
+# Check your audio devices
+arecord -l
+
+# Test recording with ALSA directly
+arecord -d 5 test.wav
 ```
 
 ## Next Steps

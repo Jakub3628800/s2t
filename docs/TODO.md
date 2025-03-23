@@ -10,25 +10,25 @@ This document outlines future development plans and improvements for the S2T pro
   - Add proper versioning and release process
   - Create comprehensive README and documentation for PyPI page
 
-- **Stabilize and finalize the interface**
-  - Define stable API for programmatic usage
-  - Standardize command-line arguments across all scripts
-  - Create consistent error handling and reporting
-  - Improve configuration system for better flexibility
+- **Further improve test coverage**
+  - Expand unit tests for core functionality
+  - Add integration tests for end-to-end workflows
+  - Implement UI/GTK4 test framework
+  - Create mock backends for testing without API keys
 
 ## Feature Enhancements
 
-- **Create additional entry scripts**
-  - Chain output to LLM to get bash command hints
-  - Add script for direct transcription to clipboard
-  - Create script for transcription to file with timestamp
-  - Implement script for real-time transcription display
+- **Enhanced speech-to-text capabilities**
+  - Add support for additional transcription backends (local models)
+  - Implement language detection and multi-language support
+  - Add specialized modes for technical terms and code dictation
+  - Include speech command capabilities (e.g., "new paragraph")
 
-- **Improve transcription quality**
-  - Add support for more transcription backends
-  - Implement custom fine-tuning options
-  - Add language detection and multi-language support
-  - Improve handling of technical terms and jargon
+- **UI Improvements**
+  - Add keyboard shortcuts for common operations
+  - Implement a settings dialog for real-time configuration
+  - Create a system tray icon for quick access
+  - Add theming support (light/dark mode)
 
 ## Technical Improvements
 
@@ -38,11 +38,28 @@ This document outlines future development plans and improvements for the S2T pro
   - Implement caching for frequently used configurations
   - Add batch processing capabilities for offline transcription
 
-- **User experience enhancements**
-  - Improve GUI with better visual feedback
-  - Add system tray integration for quick access
-  - Create keyboard shortcuts for common operations
-  - Implement customizable themes and appearance
+- **Code quality and maintainability**
+  - Move to fully typed codebase with more MyPy enforcement
+  - Restructure modules for better organization
+  - Improve error handling and user feedback
+  - Add configurable logging levels
+
+## Completed Items
+
+- **~~Migrate to GTK 4~~** ✅
+  - Updated all imports to use GTK 4.0
+  - Fixed compatibility issues with GTK 4 API
+  - Updated documentation to reflect GTK 4 requirements
+
+- **~~Centralize command-line interface~~** ✅
+  - Created unified main module entry point
+  - Standardized command-line arguments
+  - Implemented flexible mode selection
+
+- **~~Improve security~~** ✅
+  - Fixed potential security issues in subprocess calls
+  - Implemented better temporary file handling
+  - Added test coverage for cleanup behavior
 
 ## Long-term Goals
 
