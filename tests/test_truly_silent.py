@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 import gi
 import pytest
 
-gi.require_version("Gtk", "4.0")
+gi.require_version("Gtk", "3.0")
 
 # Mock sys.argv before importing truly_silent
 sys.argv = ["truly_silent"]

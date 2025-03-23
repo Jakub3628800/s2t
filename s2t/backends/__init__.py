@@ -13,12 +13,12 @@ def get_backend(config):
     Get the appropriate STT backend based on configuration.
 
     Args:
-        config: Application configuration dictionary
+        config: Application configuration (Pydantic model)
 
     Returns:
         An instance of the configured STT backend
     """
-    backend_name = config["backends"]["default"]
+    backend_name = config.backends.default
 
     if backend_name == "whisper_api":
         return WhisperAPIBackend(config)

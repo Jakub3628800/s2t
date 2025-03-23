@@ -24,12 +24,12 @@ full = [
     "pycairo>=1.20.0",
 ]
 
+
 [project.scripts]
 s2t = "s2t.main:main"
 s2t-popup = "s2t.popup_recorder:main"
 s2t-silent = "s2t.truly_silent:main"
 s2t-immediate = "s2t.immediate_popup:main"
-s2t-headless = "s2t.headless_recorder:main"
 
 # Define s2t as a UV tool
 [project.entry-points."uv.commands"]
@@ -37,7 +37,6 @@ s2t = "s2t.main:main"
 s2t-popup = "s2t.main:main"  # Fallback to main with GUI detection
 s2t-silent = "s2t.truly_silent:main"
 s2t-immediate = "s2t.main:main"  # Fallback to main with GUI detection
-s2t-headless = "s2t.truly_silent:main"  # Fallback to silent mode
 
 [build-system]
 requires = ["setuptools>=61.0"]
@@ -58,7 +57,6 @@ ignore = ["ANN", "S101"]
 "s2t/popup_recorder.py" = ["E402", "F821", "E501"]
 "s2t/truly_silent.py" = ["E402"]
 "s2t/audio/recorder.py" = ["E722"]
-"s2t/headless_recorder.py" = ["E402", "F821"]
 "s2t/immediate_popup.py" = ["E402", "S603", "S607"]
 "s2t/main.py" = ["S603", "S607"]
 "tests/*" = ["S101", "E402", "S108", "N811"]

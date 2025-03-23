@@ -3,6 +3,7 @@
 Simple tests for the backends module.
 """
 
+import logging
 import os
 import sys
 
@@ -11,12 +12,18 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from s2t.backends import get_backend
 from s2t.backends.whisper_api import WhisperAPIBackend
+from s2t.config import BackendsConfig, S2TConfig, WhisperAPIConfig
+
+# Setup logger
+logger = logging.getLogger(__name__)
 
 
 def test_get_backend():
     """Test that the get_backend function returns the correct backend."""
-    # Create a simple config with the whisper_api backend
-    config = {"backends": {"default": "whisper_api", "whisper_api": {"api_key": "test_key"}}}
+    # Create a Pydantic config with the whisper_api backend
+    whisper_config = WhisperAPIConfig(api_key="test_key")
+    backends_config = BackendsConfig(default="whisper_api", whisper_api=whisper_config)
+    config = S2TConfig(backends=backends_config)
 
     try:
         # Get the backend
@@ -32,15 +39,18 @@ def test_get_backend():
             backend.api_key == "test_key"
         ), f"backend.api_key is {backend.api_key}, expected 'test_key'"
 
-        print("test_get_backend: PASSED")
-    except AssertionError as e:
-        print(f"test_get_backend: FAILED - {e}")
+        logger.info("test_get_backend: PASSED")
+    except Exception as e:
+        logger.error(f"test_get_backend: FAILED - {e}")
+        raise
 
 
 def test_backend_is_available():
     """Test that the backend is_available method works correctly."""
-    # Create a simple config with the whisper_api backend
-    config = {"backends": {"default": "whisper_api", "whisper_api": {"api_key": "test_key"}}}
+    # Create a Pydantic config with the whisper_api backend
+    whisper_config = WhisperAPIConfig(api_key="test_key")
+    backends_config = BackendsConfig(default="whisper_api", whisper_api=whisper_config)
+    config = S2TConfig(backends=backends_config)
 
     try:
         # Get the backend
@@ -56,15 +66,18 @@ def test_backend_is_available():
         # Restore the original method
         backend.is_available = original_is_available
 
-        print("test_backend_is_available: PASSED")
-    except AssertionError as e:
-        print(f"test_backend_is_available: FAILED - {e}")
+        logger.info("test_backend_is_available: PASSED")
+    except Exception as e:
+        logger.error(f"test_backend_is_available: FAILED - {e}")
+        raise
 
 
 def test_backend_name():
     """Test that the backend get_name method works correctly."""
-    # Create a simple config with the whisper_api backend
-    config = {"backends": {"default": "whisper_api", "whisper_api": {"api_key": "test_key"}}}
+    # Create a Pydantic config with the whisper_api backend
+    whisper_config = WhisperAPIConfig(api_key="test_key")
+    backends_config = BackendsConfig(default="whisper_api", whisper_api=whisper_config)
+    config = S2TConfig(backends=backends_config)
 
     try:
         # Get the backend
@@ -76,14 +89,21 @@ def test_backend_name():
             backend.get_name() == "whisper_api"
         ), f"backend.get_name() returned {backend.get_name()}, expected 'whisper_api'"
 
-        print("test_backend_name: PASSED")
-    except AssertionError as e:
-        print(f"test_backend_name: FAILED - {e}")
+        logger.info("test_backend_name: PASSED")
+    except Exception as e:
+        logger.error(f"test_backend_name: FAILED - {e}")
+        raise
 
 
 if __name__ == "__main__":
-    print("Running backend tests...")
+    # Configure basic logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    logger.info("Running backend tests...")
+
+    # Run tests that don't require network access
     test_get_backend()
     test_backend_is_available()
     test_backend_name()
-    print("All tests completed.")
+
+    logger.info("All tests completed.")

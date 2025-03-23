@@ -51,7 +51,7 @@ def test_silent_script_content(mock_run):
 
     # Check for key components
     assert "#!/bin/bash" in content
-    assert "s2t.headless_recorder" in content
+    assert "s2t.truly_silent" in content
     assert "wtype" in content
 
 

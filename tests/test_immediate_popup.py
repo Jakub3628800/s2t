@@ -7,6 +7,8 @@ import sys
 
 import pytest
 
+from s2t.config import BackendsConfig, PopupRecorderConfig, S2TConfig, WhisperAPIConfig
+
 
 # Mock RecordingWindow class
 class MockRecordingWindow:
@@ -71,21 +73,12 @@ class ImmediatePopupRecorder:
 @pytest.fixture
 def mock_config():
     """Return a mock configuration for testing."""
-    return {
-        "backends": {
-            "whisper_api": {
-                "api_key": "test_api_key",
-                "model": "whisper-1",
-                "language": "en",
-            }
-        },
-        "popup_recorder": {
-            "vad_enabled": True,
-            "silence_threshold": 0.05,
-            "silence_duration": 3.0,
-            "min_recording_time": 0.0,
-        },
-    }
+    whisper_config = WhisperAPIConfig(api_key="test_api_key", model="whisper-1", language="en")
+    backends_config = BackendsConfig(whisper_api=whisper_config)
+    popup_recorder_config = PopupRecorderConfig(
+        vad_enabled=True, silence_threshold=0.05, silence_duration=3.0, min_recording_time=0.0
+    )
+    return S2TConfig(backends=backends_config, popup_recorder=popup_recorder_config)
 
 
 def test_immediate_recording_window():
@@ -122,13 +115,13 @@ def test_script_parameters(mock_config):
     # In a real test, you would need to mock the script execution
 
     # Check that silence threshold is set to 0.05
-    assert mock_config["popup_recorder"]["silence_threshold"] == 0.05
+    assert mock_config.popup_recorder.silence_threshold == 0.05
 
     # Check that silence duration is set to 3.0
-    assert mock_config["popup_recorder"]["silence_duration"] == 3.0
+    assert mock_config.popup_recorder.silence_duration == 3.0
 
     # Check that min recording time is set to 0.0 for immediate recording
-    assert mock_config["popup_recorder"]["min_recording_time"] == 0.0
+    assert mock_config.popup_recorder.min_recording_time == 0.0
 
 
 if __name__ == "__main__":

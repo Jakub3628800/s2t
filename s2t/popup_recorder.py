@@ -12,19 +12,21 @@ import signal
 import sys
 import threading
 import time
+from collections.abc import Callable
+from typing import Any
 
 # Import gi and set the required versions
 import gi
 import numpy as np  # Add NumPy import
 
-gi.require_version("Gtk", "4.0")
+gi.require_version("Gtk", "3.0")
 gi.require_version("Adw", "1")
 from gi.repository import GLib, Gtk
 
 # Import our modules
 from s2t.audio import AudioRecorder  # noqa: E402
 from s2t.backends import get_backend  # noqa: E402
-from s2t.config import DEFAULT_CONFIG_PATH, load_config  # noqa: E402
+from s2t.config import DEFAULT_CONFIG_PATH, S2TConfig, load_config  # noqa: E402
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description="Record audio and transcribe it with a popup window.")
@@ -42,7 +44,7 @@ parser.add_argument(
     "--config",
     type=str,
     default=DEFAULT_CONFIG_PATH,
-    help=f"Path to config file (default: {DEFAULT_CONFIG_PATH})",
+    help=f"Path to config file (default: {DEFAULT_CONFIG_PATH}). Supported formats: YAML, JSON",
 )
 parser.add_argument(
     "--env-file", type=str, default=".env", help="Path to .env file (default: .env)"
@@ -238,7 +240,7 @@ class RecordingWindow(Gtk.Window):
         # Set up the pulsing animation
         self._setup_pulsing_animation()
 
-    def _setup_pulsing_animation(self):
+    def _setup_pulsing_animation(self) -> None:
         """Set up the pulsing animation for the recording indicator."""
         self.pulsing = True
         self.pulsing_visible = True
@@ -307,13 +309,26 @@ class RecordingWindow(Gtk.Window):
             else:
                 GLib.idle_add(self._set_vad_status, "<span>Waiting for speech...</span>")
 
-    def _set_vad_status(self, markup):
-        """Set the VAD status label markup."""
+    def _set_vad_status(self, markup: str) -> bool:
+        """
+        Set the VAD status label markup.
+
+        Args:
+            markup: The markup text to set
+
+        Returns:
+            bool: Always False (for GLib.idle_add)
+        """
         self.vad_status.set_markup(markup)
         return False
 
-    def _on_stop_clicked(self, button):
-        """Handle stop button click."""
+    def _on_stop_clicked(self, button: Gtk.Button) -> None:
+        """
+        Handle stop button click.
+
+        Args:
+            button: The button that was clicked
+        """
         self.stop_recording()
 
     def stop_recording(self):
@@ -335,37 +350,50 @@ class RecordingWindow(Gtk.Window):
 class PopupRecorder:
     """Records audio with a popup window showing recording status."""
 
-    def __init__(self, config):
-        """Initialize the recorder with the given configuration."""
+    def __init__(self, config: S2TConfig) -> None:
+        """
+        Initialize the recorder with the given configuration.
+
+        Args:
+            config: Configuration settings for the recorder
+        """
         self.config = config
         self.backend = get_backend(config)
         self.audio_recorder = AudioRecorder(config)
-        self.window = None
-        self.is_recording = False
-        self.audio_file = None
-        self.result_text = None
+        self.window: RecordingWindow | None = None
+        self.is_recording: bool = False
+        self.audio_file: str | None = None
+        self.result_text: str | None = None
         self.stop_event = threading.Event()
         self.main_loop = None
 
-        # Set up VAD configuration
-        self.vad_enabled = config.get("popup_recorder", {}).get("vad_enabled", True)
-        self.silence_threshold = config.get("popup_recorder", {}).get("silence_threshold", 0.1)
-        self.silence_duration = config.get("popup_recorder", {}).get("silence_duration", 5.0)
-        self.min_recording_time = config.get("popup_recorder", {}).get("min_recording_time", 3.0)
+        # Set up VAD configuration from Pydantic model
+        self.vad_enabled = config.popup_recorder.vad_enabled
+        self.silence_threshold = config.popup_recorder.silence_threshold
+        self.silence_duration = config.popup_recorder.silence_duration
+        self.min_recording_time = config.popup_recorder.min_recording_time
 
         # Set up signal handlers
         signal.signal(signal.SIGINT, self._handle_interrupt)
         signal.signal(signal.SIGTERM, self._handle_interrupt)
 
-    def start_recording(self, audio_callback=None):
-        """Start recording audio and show the popup window."""
+    def start_recording(self, audio_callback: Callable[[bytes], Any] | None = None) -> bool:
+        """
+        Start recording audio and show the popup window.
+
+        Args:
+            audio_callback: Optional callback function to process audio frames
+
+        Returns:
+            bool: True if recording started successfully, False otherwise
+        """
         if self.is_recording:
             logger.warning("Recording is already in progress")
             return False
 
         if not self.backend.is_available():
             logger.error("Speech-to-text backend is not available")
-            logger.error(f"API key set: {bool(self.config['backends']['whisper_api']['api_key'])}")
+            logger.error(f"API key set: {bool(self.config.backends.whisper_api.api_key)}")
             return False
 
         # Define a callback to process audio frames for VAD
@@ -443,8 +471,13 @@ class PopupRecorder:
             logger.error("Failed to start recording")
             return False
 
-    def stop_recording(self):
-        """Stop recording audio."""
+    def stop_recording(self) -> str | None:
+        """
+        Stop recording audio.
+
+        Returns:
+            str | None: Path to the recorded audio file, or None if recording failed
+        """
         if not self.is_recording:
             logger.warning("No recording in progress")
             return None
@@ -462,8 +495,16 @@ class PopupRecorder:
             logger.error("Failed to save recording")
             return None
 
-    def transcribe(self, audio_file):
-        """Transcribe the given audio file to text."""
+    def transcribe(self, audio_file: str) -> str | None:
+        """
+        Transcribe the given audio file to text.
+
+        Args:
+            audio_file: Path to the audio file to transcribe
+
+        Returns:
+            str | None: Transcribed text, or None if transcription failed
+        """
         if not audio_file or not os.path.exists(audio_file):
             logger.error(f"Audio file not found: {audio_file}")
             return None
@@ -484,14 +525,15 @@ class PopupRecorder:
             logger.error(f"Error transcribing audio: {e}")
             return None
 
-    def record_and_transcribe(self, duration=None):
-        """Record audio and transcribe it.
+    def record_and_transcribe(self, duration: float | None = None) -> str | None:
+        """
+        Record audio for the specified duration and transcribe it.
 
         Args:
-            duration: Recording duration in seconds. If None, record until stopped.
+            duration: Optional recording duration in seconds
 
         Returns:
-            The transcribed text, or None if transcription failed.
+            str | None: Transcribed text, or None if recording or transcription failed
         """
         # Start recording
         if not self.start_recording():
@@ -515,7 +557,8 @@ class PopupRecorder:
 
             # Start the GTK main loop
             self.main_loop = GLib.MainLoop()
-            self.main_loop.run()
+            if self.main_loop:  # Check that main_loop is not None
+                self.main_loop.run()
 
             # At this point, recording has been stopped by user or timer
 
@@ -534,24 +577,32 @@ class PopupRecorder:
                 self.stop_recording()
             return None
 
-    def _show_window(self):
+    def _show_window(self) -> None:
         """Show the recording window."""
         self.window = RecordingWindow(on_stop_callback=self._on_window_stop)
         self.window.connect("close-request", self._on_window_close)
         self.window.present()
 
-    def _on_window_stop(self):
+    def _on_window_stop(self) -> None:
         """Handle window stop button click."""
         logger.info("Stop button clicked")
         self._stop_recording()
 
-    def _on_window_close(self, window):
-        """Handle window close."""
+    def _on_window_close(self, window: Gtk.Window) -> bool:
+        """
+        Handle window close.
+
+        Args:
+            window: The window being closed
+
+        Returns:
+            bool: Always False to allow the window to close
+        """
         logger.info("Window closed")
         self._stop_recording()
         return False
 
-    def _stop_recording(self):
+    def _stop_recording(self) -> None:
         """Stop recording and quit the GTK main loop."""
         # Only stop recording if we're actually recording
         if self.is_recording:
@@ -564,13 +615,24 @@ class PopupRecorder:
         if self.main_loop and self.main_loop.is_running():
             self.main_loop.quit()
 
-    def _stop_recording_from_thread(self):
-        """Stop recording from a thread (via GLib.idle_add)."""
+    def _stop_recording_from_thread(self) -> bool:
+        """
+        Stop recording from a thread (via GLib.idle_add).
+
+        Returns:
+            bool: Always False (for GLib.idle_add)
+        """
         self._stop_recording()
         return False
 
-    def _handle_interrupt(self, signum, frame):
-        """Handle interrupt signals."""
+    def _handle_interrupt(self, signum: int, frame: Any) -> None:
+        """
+        Handle interrupt signals.
+
+        Args:
+            signum: Signal number
+            frame: Current stack frame
+        """
         logger.info("Received interrupt signal, stopping recording...")
         if self.is_recording:
             GLib.idle_add(self._stop_recording_from_thread)
@@ -580,32 +642,34 @@ class PopupRecorder:
 def check_system_dependencies():
     """Check if required system dependencies are installed."""
     missing_deps = []
-    
+
     # Check for libgirepository (for GUI mode)
     try:
-        subprocess.run(["pkg-config", "--exists", "gobject-introspection-1.0"], 
-                      check=True, capture_output=True)
+        subprocess.run(
+            ["pkg-config", "--exists", "gobject-introspection-1.0"], check=True, capture_output=True
+        )
     except (subprocess.CalledProcessError, FileNotFoundError):
         missing_deps.append("libgirepository1.0-dev")
-    
+
     # Check for GTK4 (for popup mode)
     try:
-        subprocess.run(["pkg-config", "--exists", "gtk4"], 
-                      check=True, capture_output=True)
+        subprocess.run(["pkg-config", "--exists", "gtk4"], check=True, capture_output=True)
     except (subprocess.CalledProcessError, FileNotFoundError):
         missing_deps.append("libgtk-4-dev")
-    
+
     return missing_deps
+
 
 def print_dependency_warning(missing_deps):
     """Print a warning about missing dependencies."""
-    print("\n⚠️  Missing system dependencies detected! ⚠️")
-    print("The following system packages are required but not found:")
+    logger.warning("\n⚠️  Missing system dependencies detected! ⚠️")
+    logger.warning("The following system packages are required but not found:")
     for dep in missing_deps:
-        print(f"  - {dep}")
-    print("\nOn Ubuntu/Debian, install them with:")
-    print(f"  sudo apt-get install {' '.join(missing_deps)}")
-    print("\nCannot continue without these dependencies.\n")
+        logger.warning(f"  - {dep}")
+    logger.warning("\nOn Ubuntu/Debian, install them with:")
+    logger.warning(f"  sudo apt-get install {' '.join(missing_deps)}")
+    logger.warning("\nCannot continue without these dependencies.\n")
+
 
 def main():
     """Command-line entry point."""
@@ -614,9 +678,21 @@ def main():
     if missing_deps:
         print_dependency_warning(missing_deps)
         sys.exit(1)
-        
+
     # Parse arguments
     args = parser.parse_args()
+
+    # Validate the config file extension
+    if args.config:
+        if not os.path.exists(args.config):
+            # This will create a default config at the specified path
+            logger.info(f"Config file not found, will create a default config at: {args.config}")
+        # Ensure the config file has a valid extension
+        elif not args.config.endswith((".yaml", ".yml", ".json")):
+            logger.warning(
+                f"Config file should have .yaml, .yml, or .json extension. Found: {args.config}"
+            )
+            logger.warning("Will attempt to load it anyway, assuming YAML format.")
 
     # Check for environment variables
     logger.info(f"Using env file: {args.env_file} (parsed automatically)")
@@ -627,23 +703,20 @@ def main():
     # Check if API key is set in environment variables
     api_key = os.environ.get("OPENAI_API_KEY")
     if api_key:
-        # Set the API key in the config
-        config["backends"]["whisper_api"]["api_key"] = api_key
+        # Set the API key in the Pydantic config
+        config.backends.whisper_api.api_key = api_key
         logger.info("Using OpenAI API key from environment variables")
 
     # Check if API key is set in config
-    if not config["backends"]["whisper_api"]["api_key"]:
+    if not config.backends.whisper_api.api_key:
         logger.warning("No OpenAI API key found in config or environment variables")
         logger.warning("Transcription may fail. Set OPENAI_API_KEY in .env file or config.")
 
-    # Set up VAD configuration
-    if "popup_recorder" not in config:
-        config["popup_recorder"] = {}
-
-    config["popup_recorder"]["vad_enabled"] = not args.no_vad and args.time is None
-    config["popup_recorder"]["silence_threshold"] = args.silence_threshold
-    config["popup_recorder"]["silence_duration"] = args.silence_duration
-    config["popup_recorder"]["min_recording_time"] = args.min_recording_time
+    # Configure VAD settings
+    config.popup_recorder.vad_enabled = not args.no_vad and args.time is None
+    config.popup_recorder.silence_threshold = args.silence_threshold
+    config.popup_recorder.silence_duration = args.silence_duration
+    config.popup_recorder.min_recording_time = args.min_recording_time
 
     # Create recorder
     recorder = PopupRecorder(config)
@@ -659,7 +732,7 @@ def main():
             logger.info(f"Transcription saved to {args.output}")
         else:
             # Output to stdout
-            print(text)
+            logger.info(text)
         return 0
     else:
         logger.error("Failed to transcribe audio")

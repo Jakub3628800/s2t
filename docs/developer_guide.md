@@ -49,7 +49,6 @@ s2t/
 │   │   ├── base.py
 │   │   └── whisper_api.py
 │   ├── config.py      # Configuration management
-│   ├── headless_recorder.py  # Headless recorder implementation
 │   ├── immediate_popup.py    # Immediate popup recorder
 │   ├── popup_recorder.py     # Popup recorder implementation
 │   └── truly_silent.py       # Truly silent recorder
@@ -98,8 +97,6 @@ S2T provides several recorder implementations:
 - `PopupRecorder`: Graphical recorder with a popup window
 - `ImmediatePopupRecorder`: Popup recorder that starts recording immediately
 - `TrulySilentRecorder`: Recorder without any GUI or notifications
-- `HeadlessRecorder`: Recorder without GUI but with desktop notifications
-
 
 ## Testing
 

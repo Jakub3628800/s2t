@@ -15,29 +15,21 @@ sys.argv = ["popup_recorder"]
 
 import gi
 
-gi.require_version("Gtk", "4.0")
+gi.require_version("Gtk", "3.0")
 
+from s2t.config import BackendsConfig, PopupRecorderConfig, S2TConfig, WhisperAPIConfig
 from s2t.popup_recorder import PopupRecorder
 
 
 @pytest.fixture
 def mock_config():
     """Return a mock configuration for testing."""
-    return {
-        "backends": {
-            "whisper_api": {
-                "api_key": "test_api_key",
-                "model": "whisper-1",
-                "language": "en",
-            }
-        },
-        "popup_recorder": {
-            "vad_enabled": True,
-            "silence_threshold": 0.1,
-            "silence_duration": 2.0,
-            "min_recording_time": 1.0,
-        },
-    }
+    whisper_config = WhisperAPIConfig(api_key="test_api_key", model="whisper-1", language="en")
+    backends_config = BackendsConfig(whisper_api=whisper_config)
+    popup_recorder_config = PopupRecorderConfig(
+        vad_enabled=True, silence_threshold=0.1, silence_duration=2.0, min_recording_time=1.0
+    )
+    return S2TConfig(backends=backends_config, popup_recorder=popup_recorder_config)
 
 
 @pytest.fixture
@@ -72,10 +64,10 @@ def test_popup_recorder_init(mock_audio_recorder_class, mock_get_backend, mock_c
 
     recorder = PopupRecorder(mock_config)
 
-    assert recorder.vad_enabled == mock_config["popup_recorder"]["vad_enabled"]
-    assert recorder.silence_threshold == mock_config["popup_recorder"]["silence_threshold"]
-    assert recorder.silence_duration == mock_config["popup_recorder"]["silence_duration"]
-    assert recorder.min_recording_time == mock_config["popup_recorder"]["min_recording_time"]
+    assert recorder.vad_enabled == mock_config.popup_recorder.vad_enabled
+    assert recorder.silence_threshold == mock_config.popup_recorder.silence_threshold
+    assert recorder.silence_duration == mock_config.popup_recorder.silence_duration
+    assert recorder.min_recording_time == mock_config.popup_recorder.min_recording_time
     assert recorder.is_recording is False
     assert recorder.window is None
 

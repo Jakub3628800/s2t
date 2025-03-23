@@ -20,20 +20,24 @@ class WhisperAPIBackend(STTBackend):
         Initialize the Whisper API backend with the given configuration.
 
         Args:
-            config: Application configuration dictionary
+            config: Application configuration (Pydantic model)
         """
         super().__init__(config)
         self.name = "whisper_api"
-        self.backend_config = config["backends"]["whisper_api"]
 
-        # Set API key from config or environment variable
-        api_key = self.backend_config.get("api_key", "")
+        # Get configuration from Pydantic model
+        self.backend_config = config.backends.whisper_api
+        api_key = self.backend_config.api_key
+        self.model = self.backend_config.model
+        self.language = self.backend_config.language
+        self.temperature = self.backend_config.temperature
+        self.response_format = self.backend_config.response_format
+
+        # Try environment variable if no API key in config
         if not api_key:
             api_key = os.environ.get("OPENAI_API_KEY", "")
 
         self.api_key = api_key
-        self.model = self.backend_config.get("model", "whisper-1")
-        self.language = self.backend_config.get("language", "en")
 
         # Configure the OpenAI client
         if self.api_key:
@@ -50,56 +54,44 @@ class WhisperAPIBackend(STTBackend):
             audio_file_path: Path to the audio file to transcribe
 
         Returns:
-            A dictionary containing the transcription results:
-            {
-                'text': str,  # The transcribed text
-                'language': str,  # The detected language
-                'segments': list,  # List of segments with timestamps
-                'duration': float,  # Duration of the audio in seconds
-            }
+            A dictionary with the transcription result, or None if an error occurred
         """
-        if not self.is_available():
-            raise ValueError("Whisper API backend is not available")
-
         if not os.path.exists(audio_file_path):
-            raise FileNotFoundError(f"Audio file not found: {audio_file_path}")
+            logger.error(f"Audio file not found: {audio_file_path}")
+            return None
+
+        if not self.client:
+            logger.error("OpenAI client not initialized (missing API key?)")
+            return None
 
         try:
             logger.info(f"Transcribing audio file: {audio_file_path}")
+            logger.debug(f"Using model: {self.model}, language: {self.language}")
 
             with open(audio_file_path, "rb") as audio_file:
-                response = self.client.audio.transcriptions.create(
+                result = self.client.audio.transcriptions.create(
                     model=self.model,
                     file=audio_file,
-                    language=self.language if self.language else None,
-                    response_format="verbose_json",
+                    language=self.language,
+                    temperature=self.temperature,
+                    response_format=self.response_format,
                 )
 
-            # Extract the transcription results
-            result = {
-                "text": response.text,
-                "language": response.language,
-                "segments": response.segments,
-                "duration": response.duration,
-            }
+            # Handle different types of responses based on the response format
+            if self.response_format == "json":
+                text = result.text
+            elif hasattr(result, "text"):
+                text = result.text
+            else:
+                text = str(result)
 
-            logger.info(f"Transcription successful: {len(result['text'])} characters")
-            return result
+            logger.info(f"Transcription successful: {len(text)} characters")
+            return {"text": text}
 
         except Exception as e:
-            logger.error(f"Error transcribing audio with Whisper API: {e}")
-            return {
-                "text": f"Error: {str(e)}",
-                "language": self.language,
-                "segments": [],
-                "duration": 0.0,
-            }
+            logger.error(f"Error during transcription: {e}")
+            return None
 
     def is_available(self):
-        """
-        Check if the Whisper API backend is available and properly configured.
-
-        Returns:
-            bool: True if the backend is available, False otherwise
-        """
-        return bool(self.api_key and self.client)
+        """Check if the Whisper API backend is available."""
+        return bool(self.api_key) and bool(self.client)

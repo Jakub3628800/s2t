@@ -155,9 +155,6 @@ python -m s2t.popup_recorder
 # Immediate popup recorder (starts recording immediately)
 python -m s2t.immediate_popup
 
-# Headless recorder with notifications
-python -m s2t.headless_recorder
-
 # Truly silent recorder (no GUI, no notifications)
 python -m s2t.truly_silent
 ```
@@ -291,7 +288,6 @@ Or in the convenience script:
   - `popup_recorder.py`: GUI recorder implementation
   - `immediate_popup.py`: Immediate recording popup implementation
   - `truly_silent.py`: Basic silent recorder implementation
-  - `headless_recorder.py`: Headless recorder with notifications
   - `config.py`: Configuration management
   - `audio/`: Audio recording and processing
   - `backends/`: Speech-to-text backend implementations

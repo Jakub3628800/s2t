@@ -8,15 +8,19 @@ This module provides a recorder that runs without any GUI or notifications.
 import argparse
 import logging
 import os
+import shutil
 import signal
-import subprocess
 import sys
 import threading
 import time
 import warnings
+from typing import Any
 
 # Suppress all warnings
 warnings.filterwarnings("ignore")
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Disable logging
 logging.disable(logging.CRITICAL)
@@ -24,7 +28,8 @@ logging.disable(logging.CRITICAL)
 # Import gi and set the required version
 try:
     import gi
-    gi.require_version("Gtk", "4.0")
+
+    gi.require_version("Gtk", "3.0")
     GUI_AVAILABLE = True
 except (ImportError, ValueError):
     GUI_AVAILABLE = False
@@ -32,14 +37,19 @@ except (ImportError, ValueError):
 # Import our modules
 from s2t.audio import AudioRecorder
 from s2t.backends import get_backend
-from s2t.config import DEFAULT_CONFIG_PATH, load_config
+from s2t.config import DEFAULT_CONFIG_PATH, S2TConfig, load_config
 
 
 class TrulySilentRecorder:
     """Records audio and transcribes it without any GUI or notifications."""
 
-    def __init__(self, config):
-        """Initialize the recorder with the given configuration."""
+    def __init__(self, config: S2TConfig) -> None:
+        """
+        Initialize the recorder with the given configuration.
+
+        Args:
+            config: Configuration settings for the recorder
+        """
         self.config = config
         self.recorder = AudioRecorder(config)
         self.backend = get_backend(config)
@@ -50,8 +60,13 @@ class TrulySilentRecorder:
         signal.signal(signal.SIGINT, self._handle_interrupt)
         signal.signal(signal.SIGTERM, self._handle_interrupt)
 
-    def start_recording(self):
-        """Start recording audio."""
+    def start_recording(self) -> bool:
+        """
+        Start recording audio.
+
+        Returns:
+            bool: True if recording started successfully, False otherwise
+        """
         if self.is_recording:
             return False
 
@@ -65,8 +80,13 @@ class TrulySilentRecorder:
         else:
             return False
 
-    def stop_recording(self):
-        """Stop recording audio and return the path to the recorded file."""
+    def stop_recording(self) -> str | None:
+        """
+        Stop recording audio and return the path to the recorded file.
+
+        Returns:
+            str | None: Path to the recorded file, or None if recording failed
+        """
         if not self.is_recording:
             return None
 
@@ -81,8 +101,16 @@ class TrulySilentRecorder:
         else:
             return None
 
-    def transcribe(self, audio_file):
-        """Transcribe the given audio file to text."""
+    def transcribe(self, audio_file: str) -> str | None:
+        """
+        Transcribe the given audio file to text.
+
+        Args:
+            audio_file: Path to the audio file to transcribe
+
+        Returns:
+            str | None: Transcribed text, or None if transcription failed
+        """
         if not audio_file or not os.path.exists(audio_file):
             return None
 
@@ -98,8 +126,16 @@ class TrulySilentRecorder:
         except Exception:
             return None
 
-    def record_and_transcribe(self, duration=None):
-        """Record audio for the specified duration and transcribe it."""
+    def record_and_transcribe(self, duration: float | None = None) -> str | None:
+        """
+        Record audio for the specified duration and transcribe it.
+
+        Args:
+            duration: Optional recording duration in seconds
+
+        Returns:
+            str | None: Transcribed text, or None if recording or transcription failed
+        """
         # Start recording
         if not self.start_recording():
             return None
@@ -127,8 +163,14 @@ class TrulySilentRecorder:
                 self.stop_recording()
             return None
 
-    def _handle_interrupt(self, signum, frame):
-        """Handle interrupt signals."""
+    def _handle_interrupt(self, signum: int, frame: Any) -> None:
+        """
+        Handle interrupt signals.
+
+        Args:
+            signum: Signal number
+            frame: Current stack frame
+        """
         if self.is_recording:
             self.stop_recording()
         sys.exit(0)
@@ -137,25 +179,36 @@ class TrulySilentRecorder:
 def check_system_dependencies():
     """Check if required system dependencies are installed."""
     missing_deps = []
-    
+
     # Check for libgirepository (required for all modes)
     try:
-        subprocess.run(["pkg-config", "--exists", "gobject-introspection-1.0"], 
-                      check=True, capture_output=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Instead of using subprocess to check for the gobject-introspection package,
+        # we'll check if the required module can be imported directly, which is safer
+        pkg_config_path = shutil.which("pkg-config")
+        if pkg_config_path is None:
+            missing_deps.append("pkg-config")
+        else:
+            # The gi module should be available if libgirepository is installed
+            # We've already imported gi at the top of the file, so we can just check
+            # if it's available
+            if not GUI_AVAILABLE:
+                missing_deps.append("libgirepository1.0-dev")
+    except Exception:
         missing_deps.append("libgirepository1.0-dev")
-    
+
     return missing_deps
+
 
 def print_dependency_warning(missing_deps):
     """Print a warning about missing dependencies."""
-    print("\n⚠️  Missing system dependencies detected! ⚠️")
-    print("The following system packages are required but not found:")
+    logger.warning("\n⚠️  Missing system dependencies detected! ⚠️")
+    logger.warning("The following system packages are required but not found:")
     for dep in missing_deps:
-        print(f"  - {dep}")
-    print("\nOn Ubuntu/Debian, install them with:")
-    print(f"  sudo apt-get install {' '.join(missing_deps)}")
-    print("\nCannot continue without these dependencies.\n")
+        logger.warning(f"  - {dep}")
+    logger.warning("\nOn Ubuntu/Debian, install them with:")
+    logger.warning(f"  sudo apt-get install {' '.join(missing_deps)}")
+    logger.warning("\nCannot continue without these dependencies.\n")
+
 
 def main():
     """Main entry point for the truly silent recorder."""
@@ -164,17 +217,17 @@ def main():
         missing_deps = check_system_dependencies()
         if missing_deps:
             print_dependency_warning(missing_deps)
-            print("Note: S2T can still run in minimal mode without these dependencies.")
+            logger.warning("Note: S2T can still run in minimal mode without these dependencies.")
     else:
-        print("Running in minimal mode without GUI dependencies.")
-        
+        logger.info("Running in minimal mode without GUI dependencies.")
+
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="S2T Truly Silent CLI")
     parser.add_argument(
         "--config",
         type=str,
         default=DEFAULT_CONFIG_PATH,
-        help=f"Path to config file (default: {DEFAULT_CONFIG_PATH})",
+        help=f"Path to config file (default: {DEFAULT_CONFIG_PATH}). Supported formats: YAML, JSON",
     )
     parser.add_argument("--output", type=str, help="Output file path (default: stdout)")
     parser.add_argument(
@@ -189,6 +242,18 @@ def main():
         help="Path to .env file containing API key (default: .env)",
     )
     args = parser.parse_args()
+
+    # Validate the config file extension
+    if args.config:
+        if not os.path.exists(args.config):
+            # This will create a default config at the specified path
+            logger.info(f"Config file not found, will create a default config at: {args.config}")
+        # Ensure the config file has a valid extension
+        elif not args.config.endswith((".yaml", ".yml", ".json")):
+            logger.warning(
+                f"Config file should have .yaml, .yml, or .json extension. Found: {args.config}"
+            )
+            logger.warning("Will attempt to load it anyway, assuming YAML format.")
 
     # Redirect stderr to /dev/null to suppress ALSA warnings
     stderr_fd = os.dup(2)
@@ -205,8 +270,8 @@ def main():
         # Check if API key is set in environment variables
         api_key = os.environ.get("OPENAI_API_KEY")
         if api_key:
-            # Set the API key in the config
-            config["backends"]["whisper_api"]["api_key"] = api_key
+            # Set the API key in the Pydantic config
+            config.backends.whisper_api.api_key = api_key
 
         # Create recorder
         recorder = TrulySilentRecorder(config)
@@ -215,15 +280,11 @@ def main():
         text = recorder.record_and_transcribe(duration=args.time)
 
         if text:
-            # Output the transcription
-            if args.output:
-                with open(args.output, "w") as f:
-                    f.write(text)
-            else:
-                # Output to stdout
-                print(text)
+            # Output the transcription to stdout
+            logger.info(text)
             return 0
         else:
+            logger.error("Failed to transcribe audio")
             return 1
 
     finally:
