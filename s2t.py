@@ -20,8 +20,13 @@ import time
 import argparse
 import signal
 import subprocess
+import logging
 from typing import Optional, List
 from pywhispercpp.model import Model
+
+# Configure logging
+logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
 
 # Global variables for signal handling
 IS_RECORDING: bool = False
@@ -45,6 +50,54 @@ class AudioRecorder:
         self.audio.terminate()
 
 
+def process_transcription(frames: List[bytes], recorder: 'AudioRecorder', transcriber: 'WhisperTranscriber', args) -> Optional[str]:
+    """Process recorded audio frames and output transcription.
+
+    Args:
+        frames: List of audio data frames
+        recorder: AudioRecorder instance
+        transcriber: WhisperTranscriber instance
+        args: Parsed command-line arguments
+
+    Returns:
+        The transcription text, or None if no transcription
+    """
+    if not frames:
+        return None
+
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
+    try:
+        with wave.open(temp_file.name, 'wb') as wf:
+            wf.setnchannels(recorder.channels)
+            wf.setsampwidth(recorder.audio.get_sample_size(recorder.format))
+            wf.setframerate(recorder.rate)
+            wf.writeframes(b''.join(frames))
+
+        transcription = transcriber.transcribe(temp_file.name)
+
+        if transcription:
+            print(transcription)
+
+            # Send to tmux if requested
+            if args.tmux:
+                try:
+                    subprocess.run(['tmux', 'send-keys', '-t', args.tmux, transcription], check=True)
+                    subprocess.run(['tmux', 'send-keys', '-t', args.tmux, 'C-m'], check=True)
+                except subprocess.CalledProcessError as e:
+                    logger.warning(f"Failed to send to tmux: {e}")
+
+            # Type if requested
+            if args.type:
+                try:
+                    subprocess.run(['wtype', transcription], check=True)
+                except subprocess.CalledProcessError as e:
+                    logger.warning(f"Failed to type transcription: {e}")
+
+        return transcription
+    finally:
+        os.unlink(temp_file.name)
+
+
 class WhisperTranscriber:
     def __init__(self) -> None:
         self.model: Optional[Model] = None
@@ -54,26 +107,29 @@ class WhisperTranscriber:
         """Load whisper model"""
         try:
             self.model = Model('small', print_realtime=False, print_progress=False)
-        except Exception:
+        except (OSError, RuntimeError) as e:
+            logger.warning(f"Failed to load 'small' model: {e}, trying 'tiny'")
             try:
                 self.model = Model('tiny', print_realtime=False, print_progress=False)
-            except Exception:
+            except (OSError, RuntimeError) as e:
+                logger.error(f"Failed to load 'tiny' model: {e}")
                 sys.exit(1)
 
     def transcribe(self, audio_file_path: str) -> Optional[str]:
         """Transcribe audio file"""
         if not self.model:
             return None
-        
+
         try:
             segments = self.model.transcribe(audio_file_path)
             if segments and hasattr(segments[0], 'text'):
                 transcription = " ".join([segment.text for segment in segments])
             else:
                 transcription = str(segments)
-            
+
             return transcription.strip()
-        except Exception:
+        except (OSError, RuntimeError) as e:
+            logger.error(f"Transcription failed: {e}")
             return None
 
 
@@ -93,41 +149,15 @@ def main() -> None:
     def signal_handler(signum: int, frame) -> None:
         global IS_RECORDING, FRAMES, STREAM
         IS_RECORDING = False
-        
+
         if STREAM:
             STREAM.stop_stream()
             STREAM.close()
-        
+
         # Process transcription
         if FRAMES and RECORDER and TRANSCRIBER:
-            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
-            with wave.open(temp_file.name, 'wb') as wf:
-                wf.setnchannels(RECORDER.channels)
-                wf.setsampwidth(RECORDER.audio.get_sample_size(RECORDER.format))
-                wf.setframerate(RECORDER.rate)
-                wf.writeframes(b''.join(FRAMES))
-            
-            transcription = TRANSCRIBER.transcribe(temp_file.name)
-            os.unlink(temp_file.name)
-            
-            if transcription:
-                print(transcription)
-                
-                # Send to tmux if requested
-                if args.tmux:
-                    try:
-                        subprocess.run(['tmux', 'send-keys', '-t', args.tmux, transcription], check=True)
-                        subprocess.run(['tmux', 'send-keys', '-t', args.tmux, 'C-m'], check=True)
-                    except subprocess.CalledProcessError:
-                        pass
-                
-                # Type if requested
-                if args.type:
-                    try:
-                        subprocess.run(['wtype', transcription], check=True)
-                    except subprocess.CalledProcessError:
-                        pass
-        
+            process_transcription(FRAMES, RECORDER, TRANSCRIBER, args)
+
         if RECORDER:
             RECORDER.cleanup()
         sys.exit(0)
@@ -140,19 +170,24 @@ def main() -> None:
     os.environ['ALSA_PCM_CARD'] = '0'
     os.environ['ALSA_PCM_DEVICE'] = '0'
 
+    # Suppress whisper model loading logs
+    logging.getLogger('pywhispercpp').setLevel(logging.ERROR)
+
     # Initialize components
     try:
         RECORDER = AudioRecorder()
         TRANSCRIBER = WhisperTranscriber()
-    except Exception:
+    except Exception as e:
+        logger.error(f"Failed to initialize components: {e}")
         sys.exit(1)
 
     try:
         if args.enter:
             # Enter key mode
             local_frames = []
-            local_is_recording = True
-            
+            is_recording_event = threading.Event()
+            is_recording_event.set()
+
             local_stream = RECORDER.audio.open(
                 format=RECORDER.format,
                 channels=RECORDER.channels,
@@ -160,51 +195,29 @@ def main() -> None:
                 input=True,
                 frames_per_buffer=RECORDER.chunk
             )
-            
+
             def record() -> None:
-                while local_is_recording and local_stream:
-                    data = local_stream.read(RECORDER.chunk, exception_on_overflow=False)
-                    local_frames.append(data)
-            
+                while is_recording_event.is_set() and local_stream:
+                    try:
+                        data = local_stream.read(RECORDER.chunk, exception_on_overflow=False)
+                        local_frames.append(data)
+                    except Exception as e:
+                        logger.error(f"Error reading audio: {e}")
+                        break
+
             record_thread = threading.Thread(target=record)
             record_thread.start()
-            
+
             input()  # Wait for Enter
-            
-            local_is_recording = False
+
+            is_recording_event.clear()
             record_thread.join()
-            
+
             local_stream.stop_stream()
             local_stream.close()
-            
-            transcription: Optional[str] = None
-            
+
             if local_frames:
-                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
-                with wave.open(temp_file.name, 'wb') as wf:
-                    wf.setnchannels(RECORDER.channels)
-                    wf.setsampwidth(RECORDER.audio.get_sample_size(RECORDER.format))
-                    wf.setframerate(RECORDER.rate)
-                    wf.writeframes(b''.join(local_frames))
-                
-                transcription = TRANSCRIBER.transcribe(temp_file.name)
-                os.unlink(temp_file.name)
-                
-                if transcription:
-                    print(transcription)
-                    
-                    if args.tmux:
-                        try:
-                            subprocess.run(['tmux', 'send-keys', '-t', args.tmux, transcription], check=True)
-                            subprocess.run(['tmux', 'send-keys', '-t', args.tmux, 'C-m'], check=True)
-                        except subprocess.CalledProcessError:
-                            pass
-                    
-                    if args.type:
-                        try:
-                            subprocess.run(['wtype', transcription], check=True)
-                        except subprocess.CalledProcessError:
-                            pass
+                process_transcription(local_frames, RECORDER, TRANSCRIBER, args)
         else:
             # Push-to-talk mode (record until killed)
             IS_RECORDING = True
