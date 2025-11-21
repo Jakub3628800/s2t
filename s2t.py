@@ -173,10 +173,22 @@ def main() -> None:
     # Suppress whisper model loading logs
     logging.getLogger('pywhispercpp').setLevel(logging.ERROR)
 
-    # Initialize components
+    # Initialize components (suppress stderr from whisper C library)
     try:
-        RECORDER = AudioRecorder()
-        TRANSCRIBER = WhisperTranscriber()
+        # Suppress C library output by redirecting file descriptor 2 (stderr)
+        import io
+        devnull_fd = os.open(os.devnull, os.O_WRONLY)
+        old_stderr_fd = os.dup(2)
+        os.dup2(devnull_fd, 2)
+
+        try:
+            RECORDER = AudioRecorder()
+            TRANSCRIBER = WhisperTranscriber()
+        finally:
+            # Restore stderr
+            os.dup2(old_stderr_fd, 2)
+            os.close(devnull_fd)
+            os.close(old_stderr_fd)
     except Exception as e:
         logger.error(f"Failed to initialize components: {e}")
         sys.exit(1)
