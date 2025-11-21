@@ -65,7 +65,7 @@ class AudioRecorder:
         self.audio.terminate()
 
 
-def process_transcription(frames: List[bytes], recorder: 'AudioRecorder', transcriber: 'WhisperTranscriber', args) -> Optional[str]:
+def process_transcription(frames: List[bytes], recorder: 'AudioRecorder', transcriber: 'WhisperTranscriber', args: argparse.Namespace) -> Optional[str]:
     """Process recorded audio frames and output transcription.
 
     Args:
@@ -110,7 +110,10 @@ def process_transcription(frames: List[bytes], recorder: 'AudioRecorder', transc
 
         return transcription
     finally:
-        os.unlink(temp_file.name)
+        try:
+            os.unlink(temp_file.name)
+        except OSError as e:
+            logger.warning(f"Failed to delete temp file {temp_file.name}: {e}")
 
 
 class WhisperTranscriber:
@@ -173,8 +176,7 @@ def main() -> None:
         if FRAMES and RECORDER and TRANSCRIBER:
             process_transcription(FRAMES, RECORDER, TRANSCRIBER, args)
 
-        if RECORDER:
-            RECORDER.cleanup()
+        # Exit without cleanup - it will be handled in finally block
         sys.exit(0)
 
     # Register signal handlers
@@ -251,7 +253,8 @@ def main() -> None:
                         try:
                             data = STREAM.read(RECORDER.chunk, exception_on_overflow=False)
                             FRAMES.append(data)
-                        except Exception:
+                        except Exception as e:
+                            logger.error(f"Error reading audio: {e}")
                             break
 
                 record_thread = threading.Thread(target=record)
