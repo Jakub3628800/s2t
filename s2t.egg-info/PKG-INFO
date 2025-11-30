@@ -82,7 +82,7 @@ s2t --enter --tmux mywindow --type
 
 ## Options
 
-- `--enter, -e`: Use Enter key for start/stop (instead of push-to-talk)
+- `--enter`: Use Enter key for start/stop (instead of push-to-talk)
 - `--tmux SESSION, -t SESSION`: Send transcription to tmux session
 - `--type`: Type transcription at cursor using wtype
 

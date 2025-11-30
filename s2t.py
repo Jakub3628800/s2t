@@ -21,6 +21,7 @@ import argparse
 import signal
 import subprocess
 import logging
+import types
 from contextlib import contextmanager
 from typing import Optional, List
 from pywhispercpp.model import Model
@@ -164,7 +165,7 @@ def main() -> None:
     # Use global variables for signal handler
     global IS_RECORDING, FRAMES, STREAM, RECORDER, TRANSCRIBER
 
-    def signal_handler(signum: int, frame) -> None:
+    def signal_handler(signum: int, frame: Optional[types.FrameType]) -> None:
         global IS_RECORDING, FRAMES, STREAM
         IS_RECORDING = False
 
