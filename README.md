@@ -7,7 +7,7 @@ A lightweight background dictation tool for Wayland desktops using [Whisper.cpp]
 - **Background dictation**: Runs silently in the background, triggered by keyboard shortcuts
 - **Wayland native**: Types text at cursor using `wtype` (works in any application)
 - **Multiple modes**: Push-to-talk (default) or Enter-key activation
-- **Output options**: Print to stdout, send to tmux, or type at cursor
+- **Output options**: Print to stdout or type at cursor
 - **Model fallback**: Automatically tries 'small' model, falls back to 'tiny' if unavailable
 - **Clean error handling**: Comprehensive logging for debugging
 
@@ -97,12 +97,6 @@ s2t --enter --type
 ```
 Press Enter to start/stop recording.
 
-#### Send to Tmux Session
-```bash
-s2t --tmux SESSION_NAME
-```
-Transcription will be sent as command input to the specified tmux session.
-
 #### Print to Stdout Only
 ```bash
 s2t
@@ -112,7 +106,6 @@ Records audio and prints transcription (no typing).
 ## Options
 
 - `--enter`: Use Enter key for start/stop (instead of push-to-talk)
-- `--tmux SESSION, -t SESSION`: Send transcription to tmux session
 - `--type`: Type transcription at cursor using wtype
 
 ## First Run

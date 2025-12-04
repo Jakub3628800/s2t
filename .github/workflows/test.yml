@@ -18,10 +18,13 @@ jobs:
       with:
         python-version: '3.12'
 
+    - name: Install system dependencies
+      run: sudo apt-get update && sudo apt-get install -y portaudio19-dev
+
     - name: Install uv
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
     - name: Run tests
       run: |
